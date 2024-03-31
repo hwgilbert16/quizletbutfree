@@ -46,10 +46,10 @@ export class LocalStorageProvider implements StorageProvider {
     }
 
     return await Promise.all(
-      filenames.map(async (fileName) => ({
-        fileName,
-        content: await fs.promises.readFile(nodePath.join(dirPath, fileName)),
-      }))
+        filenames.map(async (fileName) => ({
+          fileName,
+          content: await fs.promises.readFile(nodePath.join(dirPath, fileName))
+        }))
     );
   }
 
