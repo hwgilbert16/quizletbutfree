@@ -76,7 +76,7 @@ export class StudySetComponent implements OnInit {
   protected readonly faImages = faImages;
 
   protected readonly navigator = navigator;
-  protected readonly window = window;
+  // protected readonly window = window;
 
   async exportSetToAnkiApkg() {
     this.ankiExportInProgress = true;
@@ -87,16 +87,16 @@ export class StudySetComponent implements OnInit {
       return;
     }
 
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(file);
-    link.download = this.set.title + ".apkg";
-
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-
-    this.ankiExportInProgress = false;
+    // const link = document.createElement("a");
+    // link.href = window.URL.createObjectURL(file);
+    // link.download = this.set.title + ".apkg";
+    //
+    // document.body.appendChild(link);
+    // link.click();
+    //
+    // document.body.removeChild(link);
+    //
+    // this.ankiExportInProgress = false;
   }
 
   async exportSetToCsv() {
@@ -108,16 +108,16 @@ export class StudySetComponent implements OnInit {
       return;
     }
 
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(file);
-    link.download = this.set.title + ".csv";
-
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-
-    this.csvExportInProgress = false;
+    // const link = document.createElement("a");
+    // link.href = window.URL.createObjectURL(file);
+    // link.download = this.set.title + ".csv";
+    //
+    // document.body.appendChild(link);
+    // link.click();
+    //
+    // document.body.removeChild(link);
+    //
+    // this.csvExportInProgress = false;
   }
 
   async exportSetMedia() {
@@ -129,16 +129,16 @@ export class StudySetComponent implements OnInit {
       return;
     }
 
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(file);
-    link.download = this.set.title + ".zip";
-
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-
-    this.mediaExportInProgress = false;
+    // const link = document.createElement("a");
+    // link.href = window.URL.createObjectURL(file);
+    // link.download = this.set.title + ".zip";
+    //
+    // document.body.appendChild(link);
+    // link.click();
+    //
+    // document.body.removeChild(link);
+    //
+    // this.mediaExportInProgress = false;
   }
 
   updateCardIndices() {
@@ -376,9 +376,9 @@ export class StudySetComponent implements OnInit {
 
     if (user && user.id === set.authorId) this.userIsAuthor = true;
 
-    if (window.location.href.slice(0, 5) !== "https") {
-      this.isHttps = false;
-    }
+    // if (window.location.href.slice(0, 5) !== "https") {
+    //   this.isHttps = false;
+    // }
 
     this.spinner.nativeElement.remove();
 

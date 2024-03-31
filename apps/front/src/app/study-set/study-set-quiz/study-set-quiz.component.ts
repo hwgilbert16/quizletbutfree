@@ -239,11 +239,11 @@ export class StudySetQuizComponent implements OnInit {
 
   submitQuiz(form: FormGroup, questions: QuizQuestion[]) {
     this.submitted = true;
-    window.scroll({
-      top: 0,
-      left: 0,
-      behavior: "smooth"
-    });
+    // window.scroll({
+    //   top: 0,
+    //   left: 0,
+    //   behavior: "smooth"
+    // });
     form.disable();
 
     let count = 0;

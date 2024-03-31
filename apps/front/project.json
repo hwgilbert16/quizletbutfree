@@ -7,10 +7,9 @@
   "targets": {
     "build": {
       "executor": "@ngx-env/builder:browser",
-      "builder": "@ngx-env/builder:browser",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/front",
+        "outputPath": "dist/front/browser/browser",
         "index": "apps/front/src/index.html",
         "main": "apps/front/src/main.ts",
         "polyfills": "apps/front/src/polyfills.ts",
@@ -106,6 +105,64 @@
         "jestConfig": "apps/front/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "server": {
+      "dependsOn": ["build"],
+      "executor": "@angular-devkit/build-angular:server",
+      "options": {
+        "outputPath": "dist/front/browser/server",
+        "main": "apps/front/server.ts",
+        "tsConfig": "apps/front/tsconfig.server.json",
+        "inlineStyleLanguage": "scss"
+      },
+      "configurations": {
+        "production": {
+          "buildOptimizer": true,
+          "outputHashing": "media",
+          "optimization": true,
+          "sourceMap": false,
+          "extractLicenses": true
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "sourceMap": true,
+          "extractLicenses": false,
+          "vendorChunk": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve-ssr": {
+      "executor": "@nguniversal/builders:ssr-dev-server",
+      "configurations": {
+        "development": {
+          "browserTarget": "front:build:development",
+          "serverTarget": "front:server:development"
+        },
+        "production": {
+          "browserTarget": "front:build:production",
+          "serverTarget": "front:server:production"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "prerender": {
+      "executor": "@nguniversal/builders:prerender",
+      "options": {
+        "routes": ["/"]
+      },
+      "configurations": {
+        "development": {
+          "browserTarget": "front:build:development",
+          "serverTarget": "front:server:development"
+        },
+        "production": {
+          "browserTarget": "front:build:production",
+          "serverTarget": "front:server:production"
+        }
+      },
+      "defaultConfiguration": "production"
     }
   },
   "tags": ["scope:client"]

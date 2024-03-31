@@ -59,16 +59,16 @@ export class QuizletExportModalComponent {
       return;
     }
 
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(file);
-    link.download = this.set.title + ".txt";
-
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-
-    this.clicked = false;
-    this.modalRef?.hide();
+    // const link = document.createElement("a");
+    // link.href = window.URL.createObjectURL(file);
+    // link.download = this.set.title + ".txt";
+    //
+    // document.body.appendChild(link);
+    // link.click();
+    //
+    // document.body.removeChild(link);
+    //
+    // this.clicked = false;
+    // this.modalRef?.hide();
   }
 }

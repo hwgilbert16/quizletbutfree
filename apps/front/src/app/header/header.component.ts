@@ -60,7 +60,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   protected modalRef?: BsModalRef;
 
   protected readonly packageJson = packageJson;
-  protected readonly window = window;
+  // protected readonly window = window;
 
   protected readonly faUser = faUser;
   protected readonly faQ = faQ;
@@ -186,17 +186,17 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   checkIfVerifiedInCookie() {
-    const cookies = document.cookie.split(";");
-    for (const cookie of cookies) {
-      if (!cookie.includes("verified")) {
-        continue;
-      }
-      this.verificationResult = cookie.includes("true");
-    }
-
-    this.sharedService.avatarUpdateEvent.subscribe(() => {
-      this.viewAvatar();
-    });
+    // const cookies = document.cookie.split(";");
+    // for (const cookie of cookies) {
+    //   if (!cookie.includes("verified")) {
+    //     continue;
+    //   }
+    //   this.verificationResult = cookie.includes("true");
+    // }
+    //
+    // this.sharedService.avatarUpdateEvent.subscribe(() => {
+    //   this.viewAvatar();
+    // });
   }
 
   ngOnDestroy() {

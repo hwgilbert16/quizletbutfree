@@ -144,17 +144,17 @@
         </li>
       </ul>
       <div class="d-flex align-items-baseline">
-        <a
-          *ngIf="
-            window.location.hostname !== 'scholarsome.com' && updateAvailable
-          "
-          [href]="releaseUrl"
-          target="_blank"
-        ><small
-          class="d-inline-flex px-2 py-1 fw-semibold bg-warning text-bg-warning border border-warning-s rounded-2 text-decoration-underline me-2"
-        >New version is available</small
-        ></a
-        >
+<!--        <a-->
+<!--          *ngIf="-->
+<!--            window.location.hostname !== 'scholarsome.com' && updateAvailable-->
+<!--          "-->
+<!--          [href]="releaseUrl"-->
+<!--          target="_blank"-->
+<!--        ><small-->
+<!--          class="d-inline-flex px-2 py-1 fw-semibold bg-warning text-bg-warning border border-warning-s rounded-2 text-decoration-underline me-2"-->
+<!--        >New version is available</small-->
+<!--        ></a-->
+<!--        >-->
         <span class="navbar-text me-3 fs-6">v{{ packageJson.version }}</span>
         <span class="navbar-text me-2"
         ><a

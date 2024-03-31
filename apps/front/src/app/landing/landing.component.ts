@@ -32,7 +32,7 @@ export class LandingComponent implements OnInit {
   protected readonly faUpRightFromSquare = faUpRightFromSquare;
   protected readonly faArrowRight = faArrowRight;
 
-  protected readonly document = document;
+  // protected readonly document = document;
 
   async ngOnInit(): Promise<void> {
     if (this.cookieService.get("authenticated") === "true") {

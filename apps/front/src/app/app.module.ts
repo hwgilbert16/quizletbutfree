@@ -42,22 +42,22 @@ import { SettingsModule } from "./settings/settings.module";
 // for now, a ts-ignore works fine
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import * as QuillNamespace from "quill";
+// import * as QuillNamespace from "quill";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Quill: any = QuillNamespace;
+// const Quill: any = QuillNamespace;
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import ImageResize from "quill-image-resize-module";
 import { SharedService } from "./shared/shared.service";
 import { FolderModule } from "./folder/folder.module";
-Quill.register("modules/imageResize", ImageResize);
+// Quill.register("modules/imageResize", ImageResize);
 
 @NgModule({
   declarations: [AppComponent, HeadScriptsComponent],
   imports: [
     CreateModule,
     LandingModule,
-    BrowserModule,
+    BrowserModule.withServerTransition({ appId: "serverApp" }),
     HttpClientModule,
     SharedModule,
     FontAwesomeModule,
@@ -68,47 +68,7 @@ Quill.register("modules/imageResize", ImageResize);
     ProfileModule,
     HeaderModule,
     SettingsModule,
-    FolderModule,
-    QuillModule.forRoot(),
-    QuillConfigModule.forRoot({
-      modules: {
-        imageResize: true,
-        formula: true,
-        keyboard: {
-          bindings: {
-            tab: {
-              key: 9,
-              handler: () => {
-                const editors = document.querySelectorAll("quill-editor");
-
-                const buttons = [
-                  ...Array.from(editors[0].querySelectorAll("button")),
-                  ...Array.from(editors[0].querySelectorAll("[role=\"button\"]")),
-                  ...Array.from(editors[1].querySelectorAll("button")),
-                  ...Array.from(editors[1].querySelectorAll("[role=\"button\"]"))
-                ];
-
-                for (const button of buttons) {
-                  button.setAttribute("tabindex", "-1");
-                }
-
-                return true;
-              }
-            }
-          }
-        },
-        toolbar: [
-          ["bold", "italic", "underline", "strike"],
-          ["code-block", "formula"],
-          [{ list: "ordered" }, { list: "bullet" }],
-          [{ header: 1 }, { header: 2 }],
-          [{ color: [] }, { background: [] }],
-          [{ script: "sub" }, { script: "super" }],
-          ["link", "image"],
-          ["clean"]
-        ]
-      }
-    })
+    FolderModule
   ],
   providers: [SharedService],
   bootstrap: [AppComponent, HeadScriptsComponent]
