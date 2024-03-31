@@ -14,8 +14,7 @@ export class S3StorageProvider implements StorageProvider {
         secretAccessKey: configService.get<string>("S3_STORAGE_SECRET_KEY")
       },
       endpoint: configService.get<string>("S3_STORAGE_ENDPOINT"),
-      region: configService.get<string>("S3_STORAGE_REGION"),
-      forcePathStyle: true
+      region: configService.get<string>("S3_STORAGE_REGION")
     });
 
     this.bucket = configService.get<string>("S3_STORAGE_BUCKET");
