@@ -19,7 +19,6 @@ export class TasksService {
 
   /**
    * Generates a sitemap to save to the filesystem
-   * and to submit to Google's search API (if configured)
    */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async generateSitemap() {
@@ -91,7 +90,7 @@ export class TasksService {
       setsSitemap
           .ele("url")
           .ele("loc")
-          .txt(`${htmlPrefix}://${this.configService.get("HOST")}/sets/${set.id}`)
+          .txt(`${htmlPrefix}://${this.configService.get("HOST")}/study-set/${set.id}`)
           .up()
           .ele("lastmod")
           .txt(set.updatedAt.toISOString())
@@ -134,7 +133,7 @@ export class TasksService {
     fs.writeFileSync("./dist/sitemaps/users.xml", usersSitemap.end({ prettyPrint: true }));
 
     /*
-    Generate the users sitemap
+    Generate the folders sitemap
      */
 
     const folders = await this.foldersService.getSitemapFolderInfo();
