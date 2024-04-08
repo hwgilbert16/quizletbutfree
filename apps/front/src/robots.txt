@@ -4,5 +4,3 @@ Allow: /profile
 Allow: /folder
 Allow: /handbook
 Disallow: /404
-Disallow: /api/
-Disallow: /assets

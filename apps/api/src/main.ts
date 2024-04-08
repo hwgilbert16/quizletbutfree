@@ -12,6 +12,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as fs from "fs";
 import { LoggerFactory } from "./app/shared/logger.factory";
 import helmet from "helmet";
+import { missingSitemapMiddleware } from "./app/providers/missing-sitemap.middleware";
 
 async function bootstrap() {
   const validation = envSchema
@@ -79,6 +80,10 @@ async function bootstrap() {
   app.use(compression());
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
+
+  // this needs to run before the serve static module, so this is functional middleware
+  // instead of being class-based
+  app.use(missingSitemapMiddleware);
 
   if (
     process.env.SSL_KEY_BASE64 &&

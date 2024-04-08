@@ -23,6 +23,7 @@ import { StorageModule } from "./providers/storage/storage.module";
 import { FoldersModule } from "./folders/folders.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TasksService } from "./providers/tasks.service";
+import { NoIndexMiddleware } from "./providers/no-index.middleware";
 
 @Module({
   imports: [
@@ -126,6 +127,12 @@ export class AppModule implements NestModule {
 
     consumer
         .apply(TokenRefreshMiddleware)
+        .forRoutes({ path: "*", method: RequestMethod.ALL });
+
+    // this logic for whether this middleware is bound should be done in the .forRoutes call
+    // however the path specifier isn't working, so the middleware itself checks whether to add the header
+    consumer
+        .apply(NoIndexMiddleware)
         .forRoutes({ path: "*", method: RequestMethod.ALL });
   }
 }
