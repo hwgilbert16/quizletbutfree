@@ -22,6 +22,9 @@ export class TasksService {
    */
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async generateSitemap() {
+    // sitemaps are only generated when NODE_ENV is set to public
+    if (this.configService.get<string>("NODE_ENV") !== "public") return;
+
     let htmlPrefix = "";
 
     const date = new Date().toISOString();

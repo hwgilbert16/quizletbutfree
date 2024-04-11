@@ -1,4 +1,4 @@
-<nav class="navbar sticky-top navbar-expand-xxl bg-white">
+<nav class="navbar sticky-top navbar-expand-xxl bg-white" [hidden]="!landingPageEnabled">
   <div class="container-fluid navbar-container">
     <a class="navbar-brand" href="#">
       <img src="assets/header/scholarsome-logo-purple-lowercase.svg" width="80%" height="80%" alt="Logo" class="d-inline-block align-text-top">
@@ -26,7 +26,7 @@
   </div>
 </nav>
 
-<div class="container-fluid p-0 bg-white">
+<div class="container-fluid p-0 bg-white" [hidden]="!landingPageEnabled">
   <div class="main-screen d-flex align-items-center min-vh-100">
     <div class="container-fluid text-center">
       <div class="row justify-content-center">

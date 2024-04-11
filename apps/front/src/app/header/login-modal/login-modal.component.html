@@ -1,7 +1,19 @@
 <ng-template #modal>
   <div class="modal-header bg-white">
-    <h4 class="modal-title pull-left">Log in</h4>
-    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+    <h4 class="modal-title pull-left" *ngIf="publicAppEnv">
+      Log in
+    </h4>
+    <div class="modal-title w-100 text-center" *ngIf="!publicAppEnv">
+      <img
+        class="navbar-brand img-fluid mt-1"
+        src="assets/header/scholarsome-logo-purple-lowercase.svg"
+        alt="Scholarsome"
+        width="75%"
+        height="75%"
+      />
+      <p class="text-secondary mt-3 mb-n1 mx-auto w-75">Login to the Scholarsome instance running at {{appUrl}}</p>
+    </div>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" *ngIf="publicAppEnv" (click)="modalRef?.hide()">
       <span aria-hidden="true" class="visually-hidden">&times;</span>
     </button>
   </div>
@@ -20,7 +32,7 @@
           <a class="form-text" (click)="modalRef?.hide(); modalService.modal.next('forgot-password-open')">Forgot?</a>
         </div>
         <input type="password" class="form-control" id="login-password" name="password" required ngModel>
-        <div class="form-text recaptcha-text">This site is protected by reCAPTCHA and the Google
+        <div class="form-text recaptcha-text" *ngIf="recaptchaEnabled">This site is protected by reCAPTCHA and the Google
           <a href="https://policies.google.com/privacy">Privacy Policy</a> and
           <a href="https://policies.google.com/terms">Terms of Service</a> apply.</div>
       </div>

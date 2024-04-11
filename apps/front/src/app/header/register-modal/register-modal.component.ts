@@ -30,12 +30,22 @@ export class RegisterModalComponent {
   protected response: ApiResponseOptions | null;
   protected clicked = false;
 
+  protected publicAppEnv = false;
+  protected onLandingPage = false;
+  protected recaptchaEnabled = false;
+  protected appUrl = "";
+
   protected modalRef?: BsModalRef;
 
   protected readonly ApiResponseOptions = ApiResponseOptions;
 
   public open(): BsModalRef {
-    this.modalRef = this.bsModalService.show(this.modal);
+    this.publicAppEnv = process.env["NG_APP_ENV"] === "public";
+    this.onLandingPage = this.router.url === "/";
+    this.recaptchaEnabled === !process.env["SCHOLARSOME_RECAPTCHA_SECRET"] || !process.env["SCHOLARSOME_RECAPTCHA_SITE"];
+    this.appUrl = window.location.host;
+
+    this.modalRef = this.bsModalService.show(this.modal, { ignoreBackdropClick: !this.publicAppEnv && this.onLandingPage });
     return this.modalRef;
   }
 
