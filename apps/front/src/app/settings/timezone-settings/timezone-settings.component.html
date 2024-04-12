@@ -1,0 +1,20 @@
+<form class="py-3" (ngSubmit)="submit(form)" #form="ngForm" ngNativeValidate>
+  <div class="mb-3">
+    <select name="timezone" class="form-select form-select-lg" ngModel required>
+      <option
+        *ngFor="let timezone of timezones"
+        [value]="timezone.name"
+        [selected]="timezone.name === userTimezone"
+      >
+        {{timezone.rawFormat}}
+      </option>
+    </select>
+    <div *ngIf="success" class="form-text text-success">Your timezone has been successfully updated.</div>
+    <div *ngIf="error" class="form-text text-danger">Something went wrong. Try again, or look at the developer console for more information.</div>
+    <div *ngIf="rateLimit" class="form-text text-danger">You are being rate limited.</div>
+  </div>
+  <button type="submit" class="btn btn-primary" [disabled]="clicked">
+    <span *ngIf="clicked" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Change timezone
+  </button>
+</form>

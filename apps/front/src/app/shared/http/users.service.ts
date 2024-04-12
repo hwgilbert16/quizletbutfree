@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse } from "@angular/common/http";
 import { ApiResponse, ApiResponseOptions, User } from "@scholarsome/shared";
 import { lastValueFrom } from "rxjs";
 
@@ -116,6 +116,35 @@ export class UsersService {
     }
 
     return true;
+  }
+
+  /**
+   * Updates the timezone
+   *
+   * @param timezone The new timezone
+   *
+   * @returns Boolean of whether the operation was successful
+   */
+  async setMyTimezone(timezone: string): Promise<ApiResponseOptions> {
+    try {
+      await lastValueFrom(
+          this.http.patch<ApiResponse<User>>("/api/users/timezone", {
+            timezone
+          })
+      );
+
+      return ApiResponseOptions.Success;
+    } catch (e) {
+      if (e instanceof HttpErrorResponse) {
+        if (e.status === 429) {
+          return ApiResponseOptions.Ratelimit;
+        } else {
+          return ApiResponseOptions.Error;
+        }
+      }
+
+      return ApiResponseOptions.Error;
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException, Param, Req, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, NotFoundException, Param, Patch, Req, UnauthorizedException } from "@nestjs/common";
 import { ApiResponse, ApiResponseOptions } from "@scholarsome/shared";
 import { UsersService } from "./users.service";
 import { Request as ExpressRequest } from "express";
@@ -8,6 +8,7 @@ import { UserIdParam } from "./param/userId.param";
 import { UserSuccessResponse } from "./response/success/user.success.response";
 import { ErrorResponse } from "../shared/response/error.response";
 import { AuthService } from "../auth/auth.service";
+import { TimezoneDto } from "./dto/timezone.dto";
 
 @ApiTags("Users")
 @Controller("users")
@@ -90,6 +91,40 @@ export class UsersController {
     return {
       status: ApiResponseOptions.Success,
       data: user
+    };
+  }
+
+  /**
+   * Updates the timezone of the authenticated user
+   *
+   * @returns Updated `User` object
+   */
+  @ApiOperation({
+    summary: "Update the authenticated user's timezone"
+  })
+  @ApiOkResponse({
+    description: "Expected response to a valid request",
+    type: UserSuccessResponse
+  })
+  @ApiNotFoundResponse({
+    description: "Resource not found or inaccessible",
+    type: ErrorResponse
+  })
+  @Patch("timezone")
+  async updateMyTimezone(@Body() body: TimezoneDto, @Req() req: ExpressRequest): Promise<ApiResponse<User>> {
+    const userCookies = await this.authService.getUserInfo(req);
+    if (!userCookies) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+
+    return {
+      status: ApiResponseOptions.Success,
+      data: await this.usersService.updateUser({
+        where: {
+          id: userCookies.id
+        },
+        data: {
+          timezone: body.timezone
+        }
+      })
     };
   }
 }
