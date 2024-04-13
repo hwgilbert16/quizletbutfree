@@ -8,6 +8,7 @@ const folderWithRelations = Prisma.validator<Prisma.FolderArgs>()({
       select: {
         id: true,
         username: true,
+        timezone: true,
         createdAt: true,
         updatedAt: true
       }

@@ -5,6 +5,7 @@ const setWithRelations = Prisma.validator<Prisma.SetArgs>()({
     select: {
       id: true,
       username: true,
+      timezone: true,
       createdAt: true,
       updatedAt: true
     }
