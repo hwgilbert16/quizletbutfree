@@ -43,7 +43,7 @@ export class SpacedRepetitionService {
     return {
       interval,
       repetitions,
-      easeFactor
+      easeFactor: +easeFactor.toFixed(3)
     };
   }
 }
