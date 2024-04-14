@@ -20,7 +20,8 @@ export class SpacedRepetitionCardsService {
     return this.prisma.spacedRepetitionCard.findUnique({
       where: spacedRepetitionCardWhereUniqueInput,
       include: {
-        card: true
+        card: true,
+        spacedRepetitionSet: true
       }
     });
   }
@@ -51,7 +52,8 @@ export class SpacedRepetitionCardsService {
       where,
       orderBy,
       include: {
-        card: true
+        card: true,
+        spacedRepetitionSet: true
       }
     });
   }
@@ -67,7 +69,8 @@ export class SpacedRepetitionCardsService {
     return this.prisma.spacedRepetitionCard.create({
       data,
       include: {
-        card: true
+        card: true,
+        spacedRepetitionSet: true
       }
     });
   }
@@ -89,7 +92,8 @@ export class SpacedRepetitionCardsService {
       data,
       where,
       include: {
-        card: true
+        card: true,
+        spacedRepetitionSet: true
       }
     });
   }
@@ -105,7 +109,8 @@ export class SpacedRepetitionCardsService {
     return this.prisma.spacedRepetitionCard.delete({
       where,
       include: {
-        card: true
+        card: true,
+        spacedRepetitionSet: true
       }
     });
   }

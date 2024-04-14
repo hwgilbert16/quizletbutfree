@@ -2,7 +2,8 @@ import { Prisma } from "@prisma/client";
 
 const spacedRepetitionCardWithRelations = Prisma.validator<Prisma.SpacedRepetitionCardArgs>()({
   include: {
-    card: true
+    card: true,
+    spacedRepetitionSet: true
   }
 });
 
