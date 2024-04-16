@@ -28,6 +28,45 @@
     <p class="text-secondary text-wrap text-break">{{set.description}}</p>
   </div>
   <hr>
+  <div class="mt-4 d-flex justify-content-between" *ngIf="set">
+    <div class="ms-2 w-100" *ngIf="loggedIn">
+      <h5>Spaced Repetition <span class="badge bg-primary text-white fw-normal">Beta</span></h5>
+      <div *ngIf="spacedRepetitionStarted">
+        <div class="container-fluid text-center mt-4">
+          <div class="d-flex justify-content-evenly row row-cols-1 row-cols-md-2">
+            <div class="col-md-3 bg-white shadow rounded">
+              <div class="mt-2 fs-4">Cards Due Today</div>
+              <p class="text-info fs-3 fw-bold">0</p>
+            </div>
+            <div class="col-md-3 bg-white shadow rounded mt-md-0 mt-4">
+              <div class="mt-2 fs-4">New Cards Today</div>
+              <p class="text-success fs-3 fw-bold">0</p>
+            </div>
+            <div class="col-md-3 bg-white shadow rounded mt-md-0 mt-4">
+              <div class="mt-2 fs-4">Cards Not Yet Studied</div>
+              <p class="text-danger fs-3 fw-bold">{{cardsNotYetStudied}}</p>
+            </div>
+          </div>
+
+<!--          <button [routerLink]="'/leitner-set/study-session/' + setId" [disabled]="leitnerSetStartedToday && leitnerSetUnlearnedCount === 0" class="btn btn-primary w-25 mt-5 fs-5 w-auto text-center">-->
+<!--            <fa-icon *ngIf="leitnerSetStartedToday && leitnerSetUnlearnedCount === 0" [icon]="faClock" class="ms-1"></fa-icon>-->
+<!--            <fa-icon *ngIf="leitnerSetStartedToday && leitnerSetUnlearnedCount !== 0" [icon]="faForwardStep" class="ms-1"></fa-icon>-->
+<!--            <fa-icon *ngIf="!leitnerSetStartedToday" [icon]="faPlay" class="ms-1"></fa-icon>-->
+<!--            <span *ngIf="leitnerSetStartedToday && leitnerSetUnlearnedCount === 0"> Come back for tomorrow's study session</span>-->
+<!--            <span *ngIf="leitnerSetStartedToday && leitnerSetUnlearnedCount !== 0"> Continue today's study session</span>-->
+<!--            <span *ngIf="!leitnerSetStartedToday"> Start today's study session</span>-->
+<!--          </button><br>-->
+<!--          <div class="d-flex justify-content-end">-->
+<!--            <button class="btn btn-secondary mt-3" (click)="this.leitnerModalRef = this.bsModalService.show(this.leitnerSettingsModal)">Settings</button>-->
+<!--          </div>-->
+        </div>
+      </div>
+      <div *ngIf="!spacedRepetitionStarted">
+        <button class="btn btn-primary">Start</button>
+      </div>
+    </div>
+  </div>
+  <hr>
   <div class="container-fluid">
     <div class="d-flex justify-content-end align-items-center">
       <div>

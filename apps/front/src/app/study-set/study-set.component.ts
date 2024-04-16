@@ -16,6 +16,10 @@ import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-expo
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages } from "@fortawesome/free-solid-svg-icons";
 import { ConvertingService } from "../shared/http/converting.service";
+import { SpacedRepetitionService } from "../shared/http/spaced-repetition.service";
+import { SharedService } from "../shared/shared.service";
+import { SpacedRepetitionCard } from "@prisma/client";
+import { DateTime } from "luxon";
 
 @Component({
   selector: "scholarsome-study-set",
@@ -30,7 +34,9 @@ export class StudySetComponent implements OnInit {
     private readonly titleService: Title,
     private readonly metaService: Meta,
     private readonly setsService: SetsService,
-    private readonly convertingService: ConvertingService
+    private readonly convertingService: ConvertingService,
+    private readonly spacedRepetitionService: SpacedRepetitionService,
+    private readonly sharedService: SharedService
   ) {}
 
   @ViewChild("spinner", { static: true }) spinner: ElementRef;
@@ -45,6 +51,7 @@ export class StudySetComponent implements OnInit {
 
   protected userIsAuthor = false;
   protected isEditing = false;
+  protected loggedIn = false;
   protected setId: string | null;
 
   protected author: string;
@@ -58,6 +65,11 @@ export class StudySetComponent implements OnInit {
   protected mediaExportInProgress = false;
   protected uploadTooLarge = false;
   protected deleteClicked = false;
+
+  protected spacedRepetitionStarted = false;
+  protected cardsNotYetStudied = 0;
+  protected cardsDueToday = 0;
+  protected cardsNewToday = 0;
 
   // to disable clipboard button in share dropdown on non https
   protected isHttps = true;
@@ -371,10 +383,28 @@ export class StudySetComponent implements OnInit {
     this.metaService.addTag({ name: "description", content: description });
 
     const user = await this.users.myUser();
+    if (user) this.loggedIn = true;
 
     this.set = set;
 
-    if (user && user.id === set.authorId) this.userIsAuthor = true;
+    if (user) {
+      if (user.id === set.authorId) this.userIsAuthor = true;
+
+      const spacedRepetitionSet = await this.spacedRepetitionService.spacedRepetitionSet(this.setId);
+      if (spacedRepetitionSet) {
+        this.spacedRepetitionStarted = true;
+
+        const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
+          spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
+            ...card,
+            due: this.sharedService.convertUtcStringToTimeZone(card.due.toString(), user.timezone) ?? DateTime.now(),
+            lastStudiedAt: this.sharedService.convertUtcStringToTimeZone(card.lastStudiedAt.toString(), user.timezone) ?? DateTime.now()
+          }));
+
+        this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
+        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+      }
+    }
 
     if (window.location.href.slice(0, 5) !== "https") {
       this.isHttps = false;

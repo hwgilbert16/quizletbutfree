@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { lastValueFrom, Subject } from "rxjs";
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import packageJson from "../../../../../package.json";
+import { DateTime } from "luxon";
 
 @Injectable({
   providedIn: "root"
@@ -30,5 +31,14 @@ export class SharedService {
 
   async getStargazers(): Promise<number> {
     return (await this.starsRes)["stargazers_count"];
+  }
+
+  convertUtcStringToTimeZone(utcDateString: string, timeZone: string): DateTime | null {
+    try {
+      const utcDateTime = DateTime.fromISO(utcDateString, { zone: "utc" });
+      return utcDateTime.setZone(timeZone);
+    } catch (error) {
+      return null;
+    }
   }
 }
