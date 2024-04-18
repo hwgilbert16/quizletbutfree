@@ -9,38 +9,42 @@ import {
   Post,
   Request,
   UnauthorizedException,
-  UseGuards
-} from "@nestjs/common";
-import { AuthenticatedGuard } from "../auth/guards/authenticated.guard";
-import { SetsService } from "./sets.service";
-import { UsersService } from "../users/users.service";
-import { Request as ExpressRequest } from "express";
-import { ApiResponse, ApiResponseOptions } from "@scholarsome/shared";
-import { Set } from "@prisma/client";
-import * as crypto from "crypto";
-import { CardsService } from "../cards/cards.service";
-import { CardMedia } from "@prisma/client";
+  UseGuards,
+} from '@nestjs/common';
+import { AuthenticatedGuard } from '../auth/guards/authenticated.guard';
+import { SetsService } from './sets.service';
+import { UsersService } from '../users/users.service';
+import { Request as ExpressRequest } from 'express';
+import { ApiResponse, ApiResponseOptions } from '@scholarsome/shared';
+import { Set } from '@prisma/client';
+import * as crypto from 'crypto';
+import { CardsService } from '../cards/cards.service';
+import { CardMedia } from '@prisma/client';
 import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  ApiUnauthorizedResponse
-} from "@nestjs/swagger";
-import { CreateSetDto } from "./dto/createSet.dto";
-import { UpdateSetDto } from "./dto/updateSet.dto";
-import { SetIdParam } from "./param/setIdParam.param";
-import { UserIdParam } from "../users/param/userId.param";
-import { SetsSuccessResponse } from "./response/success/sets.success.response";
-import { SetSuccessResponse } from "./response/success/set.success.response";
-import { ErrorResponse } from "../shared/response/error.response";
-import { AuthService } from "../auth/auth.service";
-import { HtmlDecodePipe } from "./pipes/html-decode.pipe";
-import { FoldersService } from "../folders/folders.service";
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { CreateSetDto } from './dto/createSet.dto';
+import { UpdateSetDto } from './dto/updateSet.dto';
+import { SetIdParam } from './param/setIdParam.param';
+import { UserIdParam } from '../users/param/userId.param';
+import { SetsSuccessResponse } from './response/success/sets.success.response';
+import { SetSuccessResponse } from './response/success/set.success.response';
+import { ErrorResponse } from '../shared/response/error.response';
+import { AuthService } from '../auth/auth.service';
+import { HtmlDecodePipe } from './pipes/html-decode.pipe';
+import { FoldersService } from '../folders/folders.service';
+import { AuthException } from '../shared/exception/exceptions/variants/auth.exception';
+import { UserException } from '../shared/exception/exceptions/variants/user.exception';
+import { SetException } from '../shared/exception/exceptions/variants/set.exception';
+import { FolderException } from '../shared/exception/exceptions/variants/folder.exception';
 
-@ApiTags("Sets")
-@Controller("sets")
+@ApiTags('Sets')
+@Controller('sets')
 export class SetsController {
   constructor(
     private readonly setsService: SetsService,
@@ -57,29 +61,29 @@ export class SetsController {
    * @remarks This MUST be placed before the "user/:userId" route to ensure this is mapped
    */
   @ApiOperation({
-    summary: "Get the sets of the authenticated user",
-    description: "Gets all of the sets of the user that is currently authenticated"
+    summary: 'Get the sets of the authenticated user',
+    description:
+      'Gets all of the sets of the user that is currently authenticated',
   })
   @ApiOkResponse({
-    description: "Expected response to a valid request",
-    type: SetsSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetsSuccessResponse,
   })
   @ApiUnauthorizedResponse({
-    description: "Invalid authentication to access the requested resource",
-    type: ErrorResponse
+    description: 'Invalid authentication to access the requested resource',
+    type: ErrorResponse,
   })
-  @Get("user/me")
+  @Get('user/me')
   async mySets(@Request() req: ExpressRequest): Promise<ApiResponse<Set[]>> {
     const user = await this.authService.getUserInfo(req);
-    if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
     return {
       status: ApiResponseOptions.Success,
       data: await this.setsService.sets({
         where: {
-          authorId: user.id
-        }
-      })
+          authorId: user.id,
+        },
+      }),
     };
   }
 
@@ -89,18 +93,21 @@ export class SetsController {
    * @returns Array of `Set` objects that belong to the user
    */
   @ApiOperation({
-    summary: "Get the sets of a user"
+    summary: 'Get the sets of a user',
   })
   @ApiOkResponse({
-    description: "Expected response to a valid request",
-    type: SetsSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetsSuccessResponse,
   })
   @ApiNotFoundResponse({
-    description: "Resource not found or inaccessible",
-    type: ErrorResponse
+    description: 'Resource not found or inaccessible',
+    type: ErrorResponse,
   })
-  @Get("user/:userId")
-  async sets(@Request() req: ExpressRequest, @Param() params: UserIdParam): Promise<ApiResponse<Set[]>> {
+  @Get('user/:userId')
+  async sets(
+    @Request() req: ExpressRequest,
+    @Param() params: UserIdParam
+  ): Promise<ApiResponse<Set[]>> {
     const user = await this.authService.getUserInfo(req);
 
     // if a user is requesting their own sets -> don't filter private sets
@@ -109,24 +116,24 @@ export class SetsController {
         status: ApiResponseOptions.Success,
         data: await this.setsService.sets({
           where: {
-            authorId: params.userId
-          }
-        })
+            authorId: params.userId,
+          },
+        }),
       };
 
-    // a user is requesting a different user's sets -> filter private sets
+      // a user is requesting a different user's sets -> filter private sets
     } else {
       const user = await this.usersService.user({
-        id: params.userId
+        id: params.userId,
       });
       if (!user) {
-        throw new NotFoundException({ status: "fail", message: "User not found" });
+        throw new UserException.UserDoesNotExist();
       }
 
       let sets = await this.setsService.sets({
         where: {
-          authorId: params.userId
-        }
+          authorId: params.userId,
+        },
       });
 
       for (const set of sets) {
@@ -137,7 +144,7 @@ export class SetsController {
 
       return {
         status: ApiResponseOptions.Success,
-        data: sets
+        data: sets,
       };
     }
   }
@@ -147,38 +154,41 @@ export class SetsController {
    *
    * @returns `Set` object
    */
-  @ApiOperation( {
-    summary: "Get a set"
+  @ApiOperation({
+    summary: 'Get a set',
   })
   @ApiOkResponse({
-    description: "Expected response to a valid request",
-    type: SetSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetSuccessResponse,
   })
   @ApiNotFoundResponse({
-    description: "Resource not found or inaccessible",
-    type: ErrorResponse
+    description: 'Resource not found or inaccessible',
+    type: ErrorResponse,
   })
   @ApiUnauthorizedResponse({
-    description: "Invalid authentication to access the requested resource",
-    type: ErrorResponse
+    description: 'Invalid authentication to access the requested resource',
+    type: ErrorResponse,
   })
-  @Get(":setId")
-  async set(@Param() params: SetIdParam, @Request() req: ExpressRequest): Promise<ApiResponse<Set>> {
+  @Get(':setId')
+  async set(
+    @Param() params: SetIdParam,
+    @Request() req: ExpressRequest
+  ): Promise<ApiResponse<Set>> {
     const set = await this.setsService.set({
-      id: params.setId
+      id: params.setId,
     });
-    if (!set) throw new NotFoundException({ status: "fail", message: "Set not found" });
+    if (!set) throw new SetException.SetDoesNotExist();
 
     if (set.private) {
       const userCookie = await this.authService.getUserInfo(req);
 
-      if (!userCookie) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
-      if (set.authorId !== userCookie.id) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+      if (!userCookie || set.authorId !== userCookie.id)
+        throw new SetException.SetIsPrivate();
     }
 
     return {
       status: ApiResponseOptions.Success,
-      data: set
+      data: set,
     };
   }
 
@@ -187,39 +197,48 @@ export class SetsController {
    *
    * @returns Created `Set` object
    */
-  @ApiOperation( {
-    summary: "Create a set"
+  @ApiOperation({
+    summary: 'Create a set',
   })
   @ApiCreatedResponse({
-    description: "Expected response to a valid request",
-    type: SetSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetSuccessResponse,
   })
   @ApiUnauthorizedResponse({
-    description: "Invalid authentication to access the requested resource",
-    type: ErrorResponse
+    description: 'Invalid authentication to access the requested resource',
+    type: ErrorResponse,
   })
   @UseGuards(AuthenticatedGuard)
   @Post()
-  async createSet(@Body(HtmlDecodePipe) body: CreateSetDto, @Request() req: ExpressRequest): Promise<ApiResponse<Set>> {
+  async createSet(
+    @Body(HtmlDecodePipe) body: CreateSetDto,
+    @Request() req: ExpressRequest
+  ): Promise<ApiResponse<Set>> {
     const user = await this.authService.getUserInfo(req);
-    if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
     const author = await this.usersService.user({
-      email: user.email
+      email: user.email,
     });
-    if (!author) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+    // if the user was deleted but still has auth cookies
+    if (!author) throw new AuthException.InvalidTokenProvided();
 
     const uuid = crypto.randomUUID();
     const media: string[] = [];
 
     for (const [i, card] of body.cards.entries()) {
-      const scannedTerm = await this.cardsService.scanAndUploadMedia(card.term, uuid);
+      const scannedTerm = await this.cardsService.scanAndUploadMedia(
+        card.term,
+        uuid
+      );
       if (scannedTerm) {
         body.cards[i].term = scannedTerm.scanned;
         media.push(...scannedTerm.media);
       }
 
-      const scannedDefinition = await this.cardsService.scanAndUploadMedia(card.definition, uuid);
+      const scannedDefinition = await this.cardsService.scanAndUploadMedia(
+        card.definition,
+        uuid
+      );
       if (scannedDefinition) {
         body.cards[i].definition = scannedDefinition.scanned;
         media.push(...scannedDefinition.media);
@@ -229,17 +248,11 @@ export class SetsController {
     for (const folderId of body.folders) {
       const folder = await this.foldersService.folder({ id: folderId });
       if (!folder) {
-        throw new UnauthorizedException({
-          status: "fail",
-          message: `Folder with ID ${folderId} does not exist`
-        });
+        throw new FolderException.FolderDoesNotExist();
       }
 
       if (folder.authorId !== user.id) {
-        throw new UnauthorizedException({
-          status: "fail",
-          message: `User is not author of folder with id ${folderId}`
-        });
+        throw new FolderException.InvalidFolderAuthor();
       }
     }
 
@@ -247,8 +260,8 @@ export class SetsController {
       id: uuid,
       author: {
         connect: {
-          email: author.email
-        }
+          email: author.email,
+        },
       },
       title: body.title,
       description: body.description,
@@ -256,7 +269,7 @@ export class SetsController {
       folders: {
         connect: body.folders.map((f) => {
           return { id: f };
-        })
+        }),
       },
       cards: {
         createMany: {
@@ -264,30 +277,32 @@ export class SetsController {
             return {
               index: c.index,
               term: c.term,
-              definition: c.definition
+              definition: c.definition,
             };
-          })
-        }
-      }
+          }),
+        },
+      },
     });
 
     for (const file of media) {
-      const card = create.cards.find((c) => c.term.includes(file) || c.definition.includes(file));
+      const card = create.cards.find(
+        (c) => c.term.includes(file) || c.definition.includes(file)
+      );
       if (!card) continue;
 
       await this.cardsService.createCardMedia({
         card: {
           connect: {
-            id: card.id
-          }
+            id: card.id,
+          },
         },
-        name: file
+        name: file,
       });
     }
 
     return {
       status: ApiResponseOptions.Success,
-      data: create
+      data: create,
     };
   }
 
@@ -296,33 +311,37 @@ export class SetsController {
    *
    * @returns Updated `Set` object
    */
-  @ApiOperation( {
-    summary: "Update a set"
+  @ApiOperation({
+    summary: 'Update a set',
   })
   @ApiOkResponse({
-    description: "Expected response to a valid request",
-    type: SetSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetSuccessResponse,
   })
   @ApiNotFoundResponse({
-    description: "Resource not found or inaccessible",
-    type: ErrorResponse
+    description: 'Resource not found or inaccessible',
+    type: ErrorResponse,
   })
   @ApiUnauthorizedResponse({
-    description: "Invalid authentication to access the requested resource",
-    type: ErrorResponse
+    description: 'Invalid authentication to access the requested resource',
+    type: ErrorResponse,
   })
   @UseGuards(AuthenticatedGuard)
-  @Patch(":setId")
-  async updateSet(@Param() params: SetIdParam, @Body(HtmlDecodePipe) body: UpdateSetDto, @Request() req: ExpressRequest): Promise<ApiResponse<Set>> {
+  @Patch(':setId')
+  async updateSet(
+    @Param() params: SetIdParam,
+    @Body(HtmlDecodePipe) body: UpdateSetDto,
+    @Request() req: ExpressRequest
+  ): Promise<ApiResponse<Set>> {
     const user = await this.authService.getUserInfo(req);
-    if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
     const set = await this.setsService.set({
-      id: params.setId
+      id: params.setId,
     });
-    if (!set) throw new NotFoundException({ status: "fail", message: "Set not found" });
+    if (!set) throw new SetException.SetDoesNotExist();
 
-    if (!(await this.setsService.verifySetOwnership(req, params.setId))) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+    if (!(await this.setsService.verifySetOwnership(req, params.setId)))
+      throw new SetException.SetCannotBeModified();
 
     let newFolderIDs: string[] = [];
     let removedFolderIDs: string[] = [];
@@ -330,24 +349,22 @@ export class SetsController {
     if (body.folders) {
       const currentFolderIDs = set.folders.map((f) => f.id);
 
-      newFolderIDs = body.folders.filter((id) => !currentFolderIDs.includes(id));
-      removedFolderIDs = currentFolderIDs.filter((id) => !body.folders.includes(id));
+      newFolderIDs = body.folders.filter(
+        (id) => !currentFolderIDs.includes(id)
+      );
+      removedFolderIDs = currentFolderIDs.filter(
+        (id) => !body.folders.includes(id)
+      );
     }
 
     for (const folderId of newFolderIDs) {
       const folder = await this.foldersService.folder({ id: folderId });
       if (!folder) {
-        throw new UnauthorizedException({
-          status: "fail",
-          message: `Folder with ID ${folderId} does not exist`
-        });
+        throw new FolderException.FolderDoesNotExist();
       }
 
       if (folder.authorId !== user.id) {
-        throw new UnauthorizedException({
-          status: "fail",
-          message: `User is not author of folder with id ${folderId}`
-        });
+        throw new FolderException.InvalidFolderAuthor();
       }
     }
 
@@ -356,7 +373,9 @@ export class SetsController {
 
     if (body.cards) {
       // need to get the cards here before any are modified in the queries below
-      const existingCards = await this.cardsService.cards({ where: { setId: set.id } });
+      const existingCards = await this.cardsService.cards({
+        where: { setId: set.id },
+      });
 
       for (const [i, card] of body.cards.entries()) {
         const completeCard = await this.cardsService.card({ id: card.id });
@@ -365,20 +384,29 @@ export class SetsController {
           // remove the associated files
           for (const mediaFile of completeCard.media) {
             existingMedias.push(mediaFile);
-            if (!card.term.includes(mediaFile.name) && !card.definition.includes(mediaFile.name)) {
+            if (
+              !card.term.includes(mediaFile.name) &&
+              !card.definition.includes(mediaFile.name)
+            ) {
               await this.cardsService.deleteCardMedia({ id: mediaFile.id });
               await this.cardsService.deleteMedia(set.id, mediaFile.name);
             }
           }
         }
 
-        const scannedTerm = await this.cardsService.scanAndUploadMedia(card.term, set.id);
+        const scannedTerm = await this.cardsService.scanAndUploadMedia(
+          card.term,
+          set.id
+        );
         if (scannedTerm) {
           body.cards[i].term = scannedTerm.scanned;
           newMedia.push(...scannedTerm.media);
         }
 
-        const scannedDefinition = await this.cardsService.scanAndUploadMedia(card.definition, set.id);
+        const scannedDefinition = await this.cardsService.scanAndUploadMedia(
+          card.definition,
+          set.id
+        );
         if (scannedDefinition) {
           body.cards[i].definition = scannedDefinition.scanned;
           newMedia.push(...scannedDefinition.media);
@@ -389,15 +417,15 @@ export class SetsController {
       // as we will be recreating them all
       await this.setsService.updateSet({
         where: {
-          id: set.id
+          id: set.id,
         },
         data: {
           cards: {
             deleteMany: {
-              setId: params.setId
-            }
-          }
-        }
+              setId: params.setId,
+            },
+          },
+        },
       });
 
       // for cards that have been entirely deleted
@@ -406,7 +434,10 @@ export class SetsController {
         if (card && card.media && card.media.length > 0) {
           for (const mediaFile of card.media) {
             if (
-              !body.cards.find((c) => c.term.includes(mediaFile.name) || c.definition.includes(mediaFile.name)
+              !body.cards.find(
+                (c) =>
+                  c.term.includes(mediaFile.name) ||
+                  c.definition.includes(mediaFile.name)
               )
             ) {
               await this.cardsService.deleteMedia(set.id, mediaFile.name);
@@ -418,7 +449,7 @@ export class SetsController {
 
     const update = await this.setsService.updateSet({
       where: {
-        id: set.id
+        id: set.id,
       },
       data: {
         title: body.title,
@@ -430,56 +461,62 @@ export class SetsController {
           }),
           disconnect: removedFolderIDs.map((s) => {
             return { id: s };
-          })
+          }),
         },
-        cards: body.cards ? {
-          createMany: {
-            data: body.cards.map((c) => {
-              return {
-                id: c.id,
-                index: c.index,
-                term: c.term,
-                definition: c.definition
-              };
-            })
-          }
-        } : undefined
-      }
+        cards: body.cards
+          ? {
+              createMany: {
+                data: body.cards.map((c) => {
+                  return {
+                    id: c.id,
+                    index: c.index,
+                    term: c.term,
+                    definition: c.definition,
+                  };
+                }),
+              },
+            }
+          : undefined,
+      },
     });
 
     // create media entries for new media
     for (const file of newMedia) {
-      const card = update.cards.find((c) => c.term.includes(file) || c.definition.includes(file));
+      const card = update.cards.find(
+        (c) => c.term.includes(file) || c.definition.includes(file)
+      );
       if (!card) continue;
 
       await this.cardsService.createCardMedia({
         card: {
           connect: {
-            id: card.id
-          }
+            id: card.id,
+          },
         },
-        name: file
+        name: file,
       });
     }
 
     // recreate media entries for existing media
     for (const file of existingMedias) {
-      const card = update.cards.find((c) => c.term.includes(file.name) || c.definition.includes(file.name));
+      const card = update.cards.find(
+        (c) => c.term.includes(file.name) || c.definition.includes(file.name)
+      );
       if (!card) continue;
 
       await this.cardsService.createCardMedia({
         card: {
           connect: {
-            id: card.id
-          }
+            id: card.id,
+          },
         },
-        name: file.name
+        name: file.name,
       });
     }
 
     return {
       status: ApiResponseOptions.Success,
-      data: update
+      data: update,
     };
   }
 
@@ -488,31 +525,35 @@ export class SetsController {
    *
    * @returns Deleted `Set` Object
    */
-  @ApiOperation( {
-    summary: "Delete a set"
+  @ApiOperation({
+    summary: 'Delete a set',
   })
   @ApiOkResponse({
-    description: "Expected response to a valid request",
-    type: SetSuccessResponse
+    description: 'Expected response to a valid request',
+    type: SetSuccessResponse,
   })
   @ApiUnauthorizedResponse({
-    description: "Invalid authentication to access the requested resource",
-    type: ErrorResponse
+    description: 'Invalid authentication to access the requested resource',
+    type: ErrorResponse,
   })
   @UseGuards(AuthenticatedGuard)
-  @Delete(":setId")
-  async deleteSet(@Param() params: SetIdParam, @Request() req: ExpressRequest): Promise<ApiResponse<Set>> {
-    if (!(await this.setsService.verifySetOwnership(req, params.setId))) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+  @Delete(':setId')
+  async deleteSet(
+    @Param() params: SetIdParam,
+    @Request() req: ExpressRequest
+  ): Promise<ApiResponse<Set>> {
+    if (!(await this.setsService.verifySetOwnership(req, params.setId)))
+      throw new SetException.SetCannotBeModified();
 
     const set = await this.setsService.deleteSet({
-      id: params.setId
+      id: params.setId,
     });
 
     await this.setsService.deleteSetMediaFiles(params.setId);
 
     return {
       status: ApiResponseOptions.Success,
-      data: set
+      data: set,
     };
   }
 }
