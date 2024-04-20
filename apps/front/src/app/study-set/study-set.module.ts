@@ -8,6 +8,7 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { StudySetRoutingModule } from "./study-set-routing.module";
 import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-export-modal.component";
+import { SpacedRepetitionFlashcardsComponent } from "./spaced-repetition/spaced-repetition-flashcards.component";
 
 @NgModule({
   imports: [
@@ -23,7 +24,8 @@ import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-expo
     StudySetFlashcardsComponent,
     StudySetQuizComponent,
     StudySetQuizQuestionComponent,
-    QuizletExportModalComponent
+    QuizletExportModalComponent,
+    SpacedRepetitionFlashcardsComponent
   ],
   exports: []
 })

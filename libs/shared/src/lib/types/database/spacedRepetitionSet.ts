@@ -3,7 +3,11 @@ import { Prisma } from "@prisma/client";
 const spacedRepetitionSetWithRelations = Prisma.validator<Prisma.SpacedRepetitionSetArgs>()({
   include: {
     set: true,
-    spacedRepetitionCards: true,
+    spacedRepetitionCards: {
+      include: {
+        card: true
+      }
+    },
     user: {
       select: {
         id: true,

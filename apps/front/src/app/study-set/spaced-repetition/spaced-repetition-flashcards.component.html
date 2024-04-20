@@ -1,0 +1,29 @@
+<div class="container flashcard-container mb-4" *ngIf="sideText">
+  <div class="row">
+    <div class="flashcard card text-center shadow-sm" [ngClass]="{'flip-back': flipped && flipInteraction, 'flip-forwards': !flipped && flipInteraction}">
+      <div class="card-body fs-1 d-flex align-items-center justify-content-center text-wrap" onmousedown="return false" (click)="flipCard()">
+        <div [innerHTML]="sanitizer.bypassSecurityTrustHtml(sideText)" class="overflow-hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-3">
+    <div class="card text-center shadow-sm">
+      <div class="card-body">
+        <div class="mt-2 d-flex justify-content-around gap-2">
+          <button type="button" class="fs-4 w-25 btn btn-danger mb-3">Completely forgot</button>
+          <button type="button" class="fs-4 w-25 btn btn-warning mb-3">Barely recalled</button>
+          <button type="button" class="fs-4 w-25 btn btn-info mb-3">Somewhat recalled</button>
+          <button type="button" class="fs-4 w-25 btn btn-success mb-3">Easily recalled</button>
+        </div>
+        <div class="mx-2 d-flex justify-content-between">
+          <p class="text-secondary fs-5">{{remainingCards}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex container-fluid justify-content-between bg-white fixed-bottom shadow controlbar">
+  <fa-icon class="fs-2 back-arrow" [routerLink]="['/study-set', setId]" [icon]="['far', 'arrow-alt-circle-left']"></fa-icon>
+</div>

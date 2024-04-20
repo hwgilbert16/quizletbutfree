@@ -115,10 +115,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    this.sharedService
-        .isUpdateAvailable()
-        .then((r) => (this.updateAvailable = r));
-    this.sharedService.getReleaseUrl().then((r) => (this.releaseUrl = r));
+    // this.sharedService
+    //     .isUpdateAvailable()
+    //     .then((r) => (this.updateAvailable = r));
+    // this.sharedService.getReleaseUrl().then((r) => (this.releaseUrl = r));
 
     this.router.events.subscribe(async (e) => {
       if (e instanceof NavigationEnd) {

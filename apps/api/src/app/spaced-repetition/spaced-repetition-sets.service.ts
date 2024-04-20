@@ -21,7 +21,11 @@ export class SpacedRepetitionSetsService {
       where: spacedRepetitionSetWhereUniqueInput,
       include: {
         set: true,
-        spacedRepetitionCards: true,
+        spacedRepetitionCards: {
+          include: {
+            card: true
+          }
+        },
         user: {
           select: {
             id: true,
@@ -62,7 +66,11 @@ export class SpacedRepetitionSetsService {
       orderBy,
       include: {
         set: true,
-        spacedRepetitionCards: true,
+        spacedRepetitionCards: {
+          include: {
+            card: true
+          }
+        },
         user: {
           select: {
             id: true,
@@ -88,7 +96,11 @@ export class SpacedRepetitionSetsService {
       data,
       include: {
         set: true,
-        spacedRepetitionCards: true,
+        spacedRepetitionCards: {
+          include: {
+            card: true
+          }
+        },
         user: {
           select: {
             id: true,
@@ -120,7 +132,11 @@ export class SpacedRepetitionSetsService {
       where,
       include: {
         set: true,
-        spacedRepetitionCards: true,
+        spacedRepetitionCards: {
+          include: {
+            card: true
+          }
+        },
         user: {
           select: {
             id: true,
@@ -146,7 +162,11 @@ export class SpacedRepetitionSetsService {
       where,
       include: {
         set: true,
-        spacedRepetitionCards: true,
+        spacedRepetitionCards: {
+          include: {
+            card: true
+          }
+        },
         user: {
           select: {
             id: true,
