@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { ApiResponse, ApiResponseOptions, SpacedRepetitionSet } from "@scholarsome/shared";
+import { ApiResponse, ApiResponseOptions, SpacedRepetitionCard, SpacedRepetitionSet } from "@scholarsome/shared";
 import { lastValueFrom } from "rxjs";
 
 @Injectable({
@@ -8,6 +8,8 @@ import { lastValueFrom } from "rxjs";
 })
 export class SpacedRepetitionService {
   constructor(private readonly http: HttpClient) {}
+
+  /* -------------------- Spaced Repetition Sets -------------------- */
 
   /**
    * Gets a spaced repetition set
@@ -35,7 +37,7 @@ export class SpacedRepetitionService {
    *
    * @param setId The ID of the set corresponding to the spaced repetition set
    *
-   * @returns Created `Folder` object
+   * @returns Created `SpacedRepetitionSet` object
    */
   async createSpacedRepetitionSets(setId: string): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
@@ -55,14 +57,12 @@ export class SpacedRepetitionService {
    * Updates a spaced repetition set
    *
    * @param body.id ID of the folder to be updated
-   * @param body.title Optional, title of the folder
-   * @param body.description Optional, description of the folder
-   * @param body.private Optional, whether the folder should be publicly visible
-   * @param body.sets Optional, array of the sets that should be within the folder
+   * @param body.cardsPerDay The number of cards that will be studied each day
+   * @param body.answerWith The side of the flashcard to answer with - either TERM or DEFINITION
    *
-   * @returns Updated `Folder` object
+   * @returns Updated `SpacedRepetitionSet` object
    */
-  async updateFolder(body: {
+  async updateSpacedRepetitionSet(body: {
     id: string;
     cardsPerDay?: number;
     answerWith?: "TERM" | "DEFINITION"
@@ -95,6 +95,56 @@ export class SpacedRepetitionService {
 
     try {
       spacedRepetitionSet = await lastValueFrom(this.http.delete<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + setId));
+    } catch (e) {
+      return null;
+    }
+
+    if (spacedRepetitionSet.status === ApiResponseOptions.Success) {
+      return spacedRepetitionSet.data;
+    } else return null;
+  }
+
+  /* -------------------- Spaced Repetition Cards -------------------- */
+
+  /**
+   * Gets a spaced repetition set
+   *
+   * @param cardId The ID of the card corresponding to the spaced repetition card
+   *
+   * @returns `SpacedRepetitionCard` object
+   */
+  async spacedRepetitionCard(cardId: string): Promise<SpacedRepetitionCard | null> {
+    let spacedRepetitionCard: ApiResponse<SpacedRepetitionCard> | undefined;
+
+    try {
+      spacedRepetitionCard = await lastValueFrom(this.http.get<ApiResponse<SpacedRepetitionCard>>("/api/spaced-repetition/sets/cards/" + cardId));
+    } catch (e) {
+      return null;
+    }
+
+    if (spacedRepetitionCard.status === ApiResponseOptions.Success) {
+      return spacedRepetitionCard.data;
+    } else return null;
+  }
+
+  /**
+   * Updates a spaced repetition card
+   *
+   * @param body.id ID of the card to be updated
+   * @param body.title An integer from 0-3 that indicates how easily the information was remembered, with 0 being most difficult
+   *
+   * @returns Updated `Card` object
+   */
+  async updateSpacedRepetitionCard(body: {
+    id: string;
+    quality: number;
+  }): Promise<SpacedRepetitionSet | null> {
+    let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
+
+    try {
+      spacedRepetitionSet = await lastValueFrom(this.http.patch<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/cards/" + body.id, {
+        quality: body.quality
+      }));
     } catch (e) {
       return null;
     }

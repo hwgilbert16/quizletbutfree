@@ -37,11 +37,13 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   protected answer: Side;
   // The current index
   protected index = 0;
+  // The number of cards already completed today
+  protected alreadyCompletedCards = 0;
   // The current card
   protected currentCard: Omit<SpacedRepetitionCard, "due" | "lastStudiedAt" | "spacedRepetitionSet"> & { due: DateTime, lastStudiedAt: DateTime };
 
   // The current side being shown
-  protected side: string;
+  protected side: Side;
   // The text being shown to the user
   protected sideText = "";
   // Displayed in bottom right showing the progress
@@ -69,53 +71,55 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   }
 
   updateIndex() {
-    this.remainingCards = `${this.index + 1}/${this.cards.length}`;
+    this.remainingCards = `${this.alreadyCompletedCards + this.index + 1}/${this.alreadyCompletedCards + this.cards.length}`;
   }
 
-  flipCard(type?: string) {
-    if (!type) {
-      this.flipInteraction = true;
-      this.flipped = !this.flipped;
-    }
+  async submitCard(quality: number) {
+    const cardId = this.currentCard.cardId;
+    this.changeCard();
+
+    await this.spacedRepetitionService.updateSpacedRepetitionCard({
+      id: cardId,
+      quality
+    });
+  }
+
+  flipCard() {
+    if (this.side === this.answer) return;
+
+    this.flipInteraction = true;
+    this.flipped = !this.flipped;
 
     // delayed to occur when text is the least visible during animation
     setTimeout(() => {
-      if (this.side === "term") {
+      if (this.side === Side.TERM) {
         this.sideText = this.cards[this.index].card.definition;
-        this.side = "definition";
+        this.side = Side.DEFINITION;
       } else {
         this.sideText = this.cards[this.index].card.term;
-        this.side = "term";
+        this.side = Side.TERM;
       }
     }, 150);
   }
 
-  changeCard(direction: number) {
-    if (
-      this.index === 0 &&
-      direction === -1
-    ) return;
-
-    if (
-      this.index === this.cards.length - 1 &&
-      direction === 1
-    ) return;
+  changeCard() {
+    if (this.index === this.cards.length - 1) return;
 
     // increment the currentCard object to the next card in the array
     if (this.index !== this.cards.length - 1) {
       this.currentCard = this.cards[this.index + 1];
     }
 
-    this.index += direction;
+    this.index += 1;
     this.updateIndex();
 
     this.flipInteraction = false;
     this.flipped = false;
 
     if (this.answer === Side.DEFINITION) {
-      this.side = "term";
+      this.side = Side.TERM;
     } else {
-      this.side = "definition";
+      this.side = Side.DEFINITION;
     }
 
     this.sideText =
@@ -153,7 +157,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
     // convert times to Luxon DateTimes
     // and sort in increasing order
-    const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt" | "spacedRepetitionSet"> & { due: DateTime, lastStudiedAt: DateTime })[] =
+    let spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt" | "spacedRepetitionSet"> & { due: DateTime, lastStudiedAt: DateTime })[] =
       spacedRepetitionSet.spacedRepetitionCards
           .map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt" | "spacedRepetitionSet"> & { due: DateTime, lastStudiedAt: DateTime } => ({
             ...card,
@@ -168,7 +172,13 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
     // get the cards from the original array that haven't been studied before
     // and put them in a separate array
-    const newCards = spacedRepetitionCards.splice(0, firstStudiedCard);
+    const newCards = spacedRepetitionCards.splice(0, firstStudiedCard === -1 ? spacedRepetitionCards.length : firstStudiedCard);
+
+    // get the number of cards that the user has already studied today
+    // check # of cards in array that have been studied today in the user's timezone
+    this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+
+    spacedRepetitionCards = spacedRepetitionCards.filter((c) => c.due.hasSame(DateTime.now().setZone(user.timezone), "day"));
 
     // get cards that are due today, up to the daily limit
     cards.push(...spacedRepetitionCards.slice(0, spacedRepetitionSet.cardsPerDay));

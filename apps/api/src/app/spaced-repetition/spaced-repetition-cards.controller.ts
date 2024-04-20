@@ -132,9 +132,9 @@ export class SpacedRepetitionCardsController {
 
     const sm2 = this.spacedRepetitionService.sm2(
         body.quality,
-        body.repetitions,
-        body.easeFactor,
-        (body.due.getTime() - spacedRepetitionCard.updatedAt.getTime()) / 8.64e7
+        spacedRepetitionCard.repetitions,
+        spacedRepetitionCard.easeFactor,
+        (spacedRepetitionCard.due.getTime() - spacedRepetitionCard.lastStudiedAt.getTime()) / 8.64e7
     );
 
     return {
@@ -148,9 +148,10 @@ export class SpacedRepetitionCardsController {
           }
         },
         data: {
-          repetitions: sm2.repetitions,
+          repetitions: sm2.repetitions++,
           easeFactor: sm2.easeFactor,
-          due: new Date(new Date().setDate(new Date().getDate() + sm2.interval))
+          due: new Date(new Date(new Date().setDate(new Date().getDate() + sm2.interval)).setUTCHours(23, 59, 0, 0)),
+          lastStudiedAt: new Date()
         }
       })
     };

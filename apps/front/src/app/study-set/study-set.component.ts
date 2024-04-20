@@ -66,7 +66,7 @@ export class StudySetComponent implements OnInit {
   protected uploadTooLarge = false;
   protected deleteClicked = false;
 
-  protected spacedRepetitionStarted = false;
+  protected spacedRepetitionEnabled = false;
   protected cardsNotYetStudied = 0;
   protected cardsDueToday = 0;
   protected cardsNewToday = 0;
@@ -392,7 +392,7 @@ export class StudySetComponent implements OnInit {
 
       const spacedRepetitionSet = await this.spacedRepetitionService.spacedRepetitionSet(this.setId);
       if (spacedRepetitionSet) {
-        this.spacedRepetitionStarted = true;
+        this.spacedRepetitionEnabled = true;
 
         const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
           spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
@@ -402,7 +402,18 @@ export class StudySetComponent implements OnInit {
           }));
 
         this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
-        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+
+        const numberOfNewCards = spacedRepetitionCards.filter((c) => c.due.toMillis() === DateTime.fromISO("1970-01-01T00:00:01.000Z").toMillis()).length;
+
+        if (
+          this.cardsDueToday !== spacedRepetitionSet.cardsPerDay &&
+          numberOfNewCards >= spacedRepetitionSet.cardsPerDay - this.cardsDueToday
+        ) {
+          this.cardsNewToday = spacedRepetitionSet.cardsPerDay - this.cardsDueToday;
+        } else if (this.cardsDueToday !== spacedRepetitionSet.cardsPerDay) {
+          this.cardsNewToday = numberOfNewCards;
+        }
       }
     }
 
