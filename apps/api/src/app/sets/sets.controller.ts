@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
@@ -38,6 +39,8 @@ import { ErrorResponse } from "../shared/response/error.response";
 import { AuthService } from "../auth/auth.service";
 import { HtmlDecodePipe } from "./pipes/html-decode.pipe";
 import { FoldersService } from "../folders/folders.service";
+import { CardWithIdValidator } from "./validator/cardWithId.validator";
+import { PrismaService } from "../providers/database/prisma/prisma.service";
 
 @ApiTags("Sets")
 @Controller("sets")
@@ -47,7 +50,8 @@ export class SetsController {
     private readonly usersService: UsersService,
     private readonly cardsService: CardsService,
     private readonly authService: AuthService,
-    private readonly foldersService: FoldersService
+    private readonly foldersService: FoldersService,
+    private readonly prisma: PrismaService
   ) {}
 
   /**
@@ -356,6 +360,10 @@ export class SetsController {
     const newMedia: string[] = [];
     const existingMedias: CardMedia[] = [];
 
+    const newCards: CardWithIdValidator[] = [];
+    const updatedCards: CardWithIdValidator[] = [];
+    const deletedCards: CardWithIdValidator[] = [];
+
     if (body.cards) {
       // need to get the cards here before any are modified in the queries below
       const existingCards = await this.cardsService.cards({ where: { setId: set.id } });
@@ -368,6 +376,7 @@ export class SetsController {
           for (const mediaFile of completeCard.media) {
             existingMedias.push(mediaFile);
             if (!card.term.includes(mediaFile.name) && !card.definition.includes(mediaFile.name)) {
+              console.log("called once");
               await this.cardsService.deleteCardMedia({ id: mediaFile.id });
               await this.cardsService.deleteMedia(set.id, mediaFile.name);
             }
@@ -387,38 +396,36 @@ export class SetsController {
         }
       }
 
-      // remove all the cards linked to the set
-      // as we will be recreating them all
-      await this.setsService.updateSet({
-        where: {
-          id: set.id
-        },
-        data: {
-          cards: {
-            deleteMany: {
-              setId: params.setId
-            }
-          }
-        }
-      });
+      updatedCards.push(...body.cards.filter((c) => {
+        const existingCard = existingCards.filter((ec) => ec.id === c.id);
+        if (existingCard.length === 0) return false;
+
+        if (existingCard[0].index !== c.index) return true;
+        if (existingCard[0].term !== c.term) return true;
+        if (existingCard[0].definition !== c.definition) return true;
+      }));
+      newCards.push(...body.cards.filter((c) => !c.id));
+      deletedCards.push(...existingCards.filter((c) => body.cards.findIndex((ec) => ec.id === c.id) === -1));
 
       // for cards that have been entirely deleted
       // remove any media files they have attached to them
-      for (const card of existingCards) {
-        if (card && card.media && card.media.length > 0) {
-          for (const mediaFile of card.media) {
-            if (
-              !body.cards.find((c) => c.term.includes(mediaFile.name) || c.definition.includes(mediaFile.name)
-              )
-            ) {
-              await this.cardsService.deleteMedia(set.id, mediaFile.name);
-            }
-          }
+      for (const card of deletedCards) {
+        const completeCard = existingCards.find((c) => c.id === card.id);
+        if (!completeCard) continue;
+
+        for (const mediaFile of completeCard.media) {
+          await this.cardsService.deleteMedia(set.id, mediaFile.name);
         }
       }
     }
 
-    const update = await this.setsService.updateSet({
+    // prisma's query functions return a PrismaPromise
+    // however, our normal http helper functions return essentially Promise<PrismaPromise>
+    // $transaction method expects a direct PrismaPromise
+    // to prevent changing the functions exclusively for this one use case, manual queries are used here
+    const queries = [];
+
+    const createAndDeleteCards = this.prisma.set.update({
       where: {
         id: set.id
       },
@@ -436,22 +443,50 @@ export class SetsController {
         },
         cards: body.cards ? {
           createMany: {
-            data: body.cards.map((c) => {
+            data: newCards.map((c) => {
               return {
-                id: c.id ? c.id : undefined,
                 index: c.index,
                 term: c.term,
                 definition: c.definition
               };
             })
+          },
+          deleteMany: {
+            id: {
+              in: deletedCards.map((c) => c.id)
+            }
           }
         } : undefined
       }
-    });
+    }
+    );
+
+    for (const update of updatedCards) {
+      queries.push(this.prisma.card.update({
+        where: {
+          id: update.id
+        },
+        data: {
+          index: update.index,
+          term: update.term,
+          definition: update.definition
+        }
+      }));
+    }
+
+    queries.push(createAndDeleteCards);
+
+    try {
+      await this.prisma.$transaction(queries);
+    } catch (e) {
+      throw new InternalServerErrorException({ status: "error", message: "Something went wrong while updating the set. The status of the set has not changed." });
+    }
+
+    const updated = [...updatedCards, ...newCards];
 
     // create media entries for new media
     for (const file of newMedia) {
-      const card = update.cards.find((c) => c.term.includes(file) || c.definition.includes(file));
+      const card = updated.find((c) => c.term.includes(file) || c.definition.includes(file));
       if (!card) continue;
 
       await this.cardsService.createCardMedia({
@@ -464,24 +499,11 @@ export class SetsController {
       });
     }
 
-    // recreate media entries for existing media
-    for (const file of existingMedias) {
-      const card = update.cards.find((c) => c.term.includes(file.name) || c.definition.includes(file.name));
-      if (!card) continue;
-
-      await this.cardsService.createCardMedia({
-        card: {
-          connect: {
-            id: card.id
-          }
-        },
-        name: file.name
-      });
-    }
-
     return {
       status: ApiResponseOptions.Success,
-      data: update
+      data: await this.setsService.set({
+        id: params.setId
+      })
     };
   }
 

@@ -36,6 +36,11 @@
   cursor: pointer;
 }
 
+.loading-spinner {
+  width: 6rem;
+  height: 6rem;
+}
+
 @keyframes button-color-change {
   0% {
     color: #212529;

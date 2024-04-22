@@ -55,6 +55,9 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   // needed to prevent animation classes from being applied until first click
   protected flipInteraction = false;
 
+  protected pageLoading = true;
+  protected cardSubmitting = false;
+
   protected modalRef?: BsModalRef;
   protected readonly faThumbsUp = faThumbsUp;
   protected readonly faCake = faCake;
@@ -71,10 +74,12 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   }
 
   updateIndex() {
-    this.remainingCards = `${this.alreadyCompletedCards + this.index + 1}/${this.alreadyCompletedCards + this.cards.length}`;
+    this.remainingCards = `${this.alreadyCompletedCards + this.index + 1}/${this.cards.length}`;
   }
 
   async submitCard(quality: number) {
+    this.cardSubmitting = true;
+
     const cardId = this.currentCard.cardId;
     this.changeCard();
 
@@ -82,6 +87,8 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
       id: cardId,
       quality
     });
+
+    this.cardSubmitting = false;
   }
 
   flipCard() {
@@ -103,7 +110,10 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   }
 
   changeCard() {
-    if (this.index === this.cards.length - 1) return;
+    if (this.index === this.cards.length - 1) {
+      this.index++;
+      return;
+    }
 
     // increment the currentCard object to the next card in the array
     if (this.index !== this.cards.length - 1) {
@@ -186,7 +196,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     // if the array isn't full, fill it with new cards
     // ones that are due take priority over old ones
     if (cards.length < spacedRepetitionSet.cardsPerDay) {
-      cards.push(...newCards.splice(0, spacedRepetitionSet.cardsPerDay - cards.length + 1));
+      cards.push(...newCards.splice(0, spacedRepetitionSet.cardsPerDay - cards.length));
     }
 
     this.cards = cards.sort(() => 0.5 - Math.random());
@@ -197,5 +207,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
     this.sideText = this.cards[0]["card"][this.side.toLowerCase() as keyof Card] as string;
     this.currentCard = this.cards[0];
+
+    this.pageLoading = false;
   }
 }

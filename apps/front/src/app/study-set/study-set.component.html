@@ -35,20 +35,27 @@
         <div class="container-fluid text-center mt-4">
           <div class="d-flex justify-content-evenly row row-cols-1 row-cols-md-2">
             <div class="col-md-3 bg-white shadow rounded">
-              <div class="mt-2 fs-4">Cards Due Today</div>
-              <p class="text-info fs-3 fw-bold">{{cardsDueToday}}</p>
+              <div class="mt-2 fs-4">Completed today</div>
+              <p class="text-info fs-3 fw-bold">{{alreadyCompletedCards}}/{{cardsPerDay}}</p>
             </div>
             <div class="col-md-3 bg-white shadow rounded mt-md-0 mt-4">
-              <div class="mt-2 fs-4">New Cards Today</div>
-              <p class="text-success fs-3 fw-bold">{{cardsNewToday}}</p>
+              <div class="mt-2 fs-4">Reviews due today</div>
+              <p class="text-success fs-3 fw-bold">{{cardsDueToday}}</p>
             </div>
             <div class="col-md-3 bg-white shadow rounded mt-md-0 mt-4">
-              <div class="mt-2 fs-4">Cards Not Yet Studied</div>
+              <div class="mt-2 fs-4">Not yet studied</div>
               <p class="text-danger fs-3 fw-bold">{{cardsNotYetStudied}}</p>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg mt-5">
-            Start today's study session
+          <button class="btn btn-primary btn-lg mt-5" [routerLink]="['/study-set', setId, 'spaced-repetition']">
+            <span *ngIf="!studySessionStartedToday">
+              <fa-icon [icon]="faPlay"></fa-icon>
+              Start today's study session
+            </span>
+            <span *ngIf="studySessionStartedToday">
+              <fa-icon [icon]="faForwardStep"></fa-icon>
+              Resume today's study session
+            </span>
           </button>
         </div>
       </div>
@@ -57,7 +64,7 @@
       </div>
     </div>
   </div>
-  <hr>
+  <hr *ngIf="spacedRepetitionEnabled">
   <div class="container-fluid">
     <div class="d-flex justify-content-end align-items-center">
       <div>
