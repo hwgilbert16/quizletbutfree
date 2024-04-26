@@ -13,4 +13,14 @@ export class UpdateSpacedRepetitionCardDto {
   @IsInt()
   @IsNotEmpty()
     quality: number;
+
+  @ApiProperty({
+    description: "The time it took to recall the card, measured in milliseconds",
+    example: 5000,
+    minimum: 1
+  })
+  @Min(1)
+  @IsInt()
+  @IsNotEmpty()
+    recallTime: number;
 }

@@ -44,10 +44,14 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
   // The current side being shown
   protected side: Side;
+  // The time the card began review at
+  protected reviewStartTime: Date;
   // The text being shown to the user
   protected sideText = "";
   // Displayed in bottom right showing the progress
   protected remainingCards = "";
+  // Whether the study session is complete
+  protected studySessionComplete = false;
 
   // Whether the card has been flipped or not
   protected flipped = false;
@@ -64,12 +68,23 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   protected readonly faQuestionCircle = faQuestionCircle;
 
   @HostListener("document:keypress", ["$event"])
-  keyboardSpaceEvent(event: KeyboardEvent) {
-    if (
-      this.index !== this.cards.length - 1 &&
-      event.key === " "
-    ) {
+  keyboardEvent(event: KeyboardEvent) {
+    if (event.key === " " || event.key === "0") {
       this.flipCard();
+    } else if (this.side === this.answer) {
+      switch (event.key) {
+        case "1":
+          this.submitCard(0);
+          break;
+        case "2":
+          this.submitCard(1);
+          break;
+        case "3":
+          this.submitCard(2);
+          break;
+        case "4":
+          this.submitCard(3);
+      }
     }
   }
 
@@ -81,11 +96,17 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     this.cardSubmitting = true;
 
     const cardId = this.currentCard.cardId;
-    this.changeCard();
 
-    await this.spacedRepetitionService.updateSpacedRepetitionCard({
+    if (this.index + 1 === this.cards.length) {
+      this.studySessionComplete = true;
+    } else {
+      this.changeCard();
+    }
+
+    await this.spacedRepetitionService.reviewSpacedRepetitionCard({
       id: cardId,
-      quality
+      quality,
+      recallTime: Math.floor(new Date().getTime() - this.reviewStartTime.getTime())
     });
 
     this.cardSubmitting = false;
@@ -207,6 +228,8 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
     this.sideText = this.cards[0]["card"][this.side.toLowerCase() as keyof Card] as string;
     this.currentCard = this.cards[0];
+
+    this.reviewStartTime = new Date();
 
     this.pageLoading = false;
   }

@@ -47,14 +47,18 @@
               <p class="text-danger fs-3 fw-bold">{{cardsNotYetStudied}}</p>
             </div>
           </div>
-          <button class="btn btn-primary btn-lg mt-5" [routerLink]="['/study-set', setId, 'spaced-repetition']">
-            <span *ngIf="!studySessionStartedToday">
+          <button class="btn btn-primary btn-lg mt-5" [routerLink]="['/study-set', setId, 'spaced-repetition']" [disabled]="alreadyCompletedCards === cardsPerDay">
+            <span *ngIf="!(alreadyCompletedCards === cardsPerDay) && !studySessionStartedToday">
               <fa-icon [icon]="faPlay"></fa-icon>
               Start today's study session
             </span>
-            <span *ngIf="studySessionStartedToday">
+            <span *ngIf="!(alreadyCompletedCards === cardsPerDay) && studySessionStartedToday">
               <fa-icon [icon]="faForwardStep"></fa-icon>
               Resume today's study session
+            </span>
+            <span *ngIf="alreadyCompletedCards === cardsPerDay">
+              <fa-icon [icon]="faClock"></fa-icon>
+              All done - come back tomorrow!
             </span>
           </button>
         </div>

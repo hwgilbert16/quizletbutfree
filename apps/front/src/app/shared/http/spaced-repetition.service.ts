@@ -128,22 +128,27 @@ export class SpacedRepetitionService {
   }
 
   /**
-   * Updates a spaced repetition card
+   * Submits a spaced repetition card review
    *
    * @param body.id ID of the card to be updated
-   * @param body.title An integer from 0-3 that indicates how easily the information was remembered, with 0 being most difficult
+   * @param body.quality An integer from 0-3 that indicates how easily the information was remembered, with 0 being most difficult
+   * @Param body.recallTime The time it took to recall the card, measured in milliseconds
    *
    * @returns Updated `Card` object
    */
-  async updateSpacedRepetitionCard(body: {
+  async reviewSpacedRepetitionCard(body: {
     id: string;
     quality: number;
+    recallTime: number
   }): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
 
+    console.log(body);
+
     try {
-      spacedRepetitionSet = await lastValueFrom(this.http.patch<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/cards/" + body.id, {
-        quality: body.quality
+      spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/cards/" + body.id + "/review", {
+        quality: body.quality,
+        recallTime: body.recallTime
       }));
     } catch (e) {
       return null;

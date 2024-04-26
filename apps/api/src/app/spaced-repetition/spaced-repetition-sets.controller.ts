@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   ConflictException,
   Controller,
@@ -21,6 +22,7 @@ import { SetIdParam } from "../sets/param/setIdParam.param";
 import { SetsService } from "../sets/sets.service";
 import { UpdateSpacedRepetitionSetDto } from "./dto/updateSpacedRepetitionSet.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { CreateSpacedRepetitionSetDto } from "./dto/createSpacedRepetitionSet.dto";
 
 @ApiTags("Spaced Repetition")
 @UseGuards(AuthenticatedGuard)
@@ -73,7 +75,7 @@ export class SpacedRepetitionSetsController {
     summary: "Create a spaced repetition set"
   })
   @Post(":setId")
-  async createSpacedRepetitionSet(@Param() params: SetIdParam, @Request() req: ExpressRequest): Promise<ApiResponse<SpacedRepetitionSet>> {
+  async createSpacedRepetitionSet(@Param() params: SetIdParam, @Body() body: CreateSpacedRepetitionSetDto, @Request() req: ExpressRequest): Promise<ApiResponse<SpacedRepetitionSet>> {
     const user = await this.authService.getUserInfo(req);
     if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
@@ -92,7 +94,12 @@ export class SpacedRepetitionSetsController {
     });
     if (existingSpacedRepetitionSet) throw new ConflictException({ status: "fail", message: "Spaced repetition set already exists" });
 
+    if (body.cardsPerDay > set.cards.length) {
+      throw new BadRequestException({ status: "fail", message: "The cards per day cannot exceed the number of cards in a set." });
+    }
+
     const spacedRepetitionSet = await this.spacedRepetitionSetsService.createSpacedRepetitionSet({
+      cardsPerDay: body.cardsPerDay,
       set: {
         connect: {
           id: params.setId

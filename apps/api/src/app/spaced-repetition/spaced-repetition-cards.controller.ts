@@ -4,7 +4,7 @@ import {
   Get,
   NotFoundException,
   Param,
-  Patch,
+  Post,
   Request,
   UnauthorizedException,
   UseGuards
@@ -86,16 +86,16 @@ export class SpacedRepetitionCardsController {
   }
 
   /**
-   * Updates a spaced repetition card
+   * Reviews a spaced repetition card
    *
    * @returns Updated `SpacedRepetitionCard` object
    */
   @ApiOperation( {
-    summary: "Run the SM2 algorithm for a spaced repetition card",
+    summary: "Review a spaced repetition card",
     description: "Runs the SM2 algorithm and automatically updates the database with the outputs. Returns the updated spaced repetition card after running SM2."
   })
-  @Patch(":cardId")
-  async updateSpacedRepetitionCard(@Param() params: CardIdParam, @Body() body: UpdateSpacedRepetitionCardDto, @Request() req: ExpressRequest): Promise<ApiResponse<SpacedRepetitionCard>> {
+  @Post(":cardId/review")
+  async reviewSpacedRepetitionCard(@Param() params: CardIdParam, @Body() body: UpdateSpacedRepetitionCardDto, @Request() req: ExpressRequest): Promise<ApiResponse<SpacedRepetitionCard>> {
     const user = await this.authService.getUserInfo(req);
     if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
@@ -151,7 +151,14 @@ export class SpacedRepetitionCardsController {
           repetitions: sm2.repetitions++,
           easeFactor: sm2.easeFactor,
           due: new Date(new Date(new Date().setDate(new Date().getDate() + sm2.interval)).setUTCHours(23, 59, 0, 0)),
-          lastStudiedAt: new Date()
+          lastStudiedAt: new Date(),
+          spacedRepetitionCardReviews: {
+            create: {
+              recallTime: body.recallTime,
+              correct: body.quality > 2,
+              quality: body.quality
+            }
+          }
         }
       })
     };

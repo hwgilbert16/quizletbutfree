@@ -4,7 +4,7 @@
   </div>
 </div>
 
-<div *ngIf="!pageLoading && index !== cards.length">
+<div *ngIf="!pageLoading && !studySessionComplete">
   <div class="container flashcard-container mb-4" *ngIf="sideText">
     <div class="row">
       <div class="flashcard card text-center shadow-sm" [ngClass]="{'flip-back': flipped && flipInteraction, 'flip-forwards': !flipped && flipInteraction, 'cursor-pointer': side !== answer}">
@@ -39,7 +39,7 @@
   </div>
 </div>
 
-<div class="d-flex flex-column justify-content-center align-items-center mx-4 message" *ngIf="index === cards.length">
+<div class="d-flex flex-column justify-content-center align-items-center mx-4 message" *ngIf="studySessionComplete">
   <div class="card">
     <div class="card-body">
       <div class="container-fluid justify-content-around">
