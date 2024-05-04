@@ -17,6 +17,11 @@
       <a [routerLink]="['/study-set', setId, 'quiz']"><button type="button" class="btn btn-lg btn-light bg-white w-100 my-2 shadow-sm"><fa-icon [icon]="['far', 'pen-to-square']"></fa-icon> Quiz</button></a>
     </div>
   </div>
+  <div class="d-flex justify-content-evenly me-md-n2" *ngIf="!spacedRepetitionEnabled">
+    <div class="row-cols-12 col-12 m-auto w-100">
+      <button type="button" class="btn btn-lg btn-light bg-white w-100 my-2 shadow-sm" (click)="loggedIn ? startSpacedRepetitionModal.open(this.set, this.userTimezone) : modalService.modal.next('login-open')"><fa-icon [icon]="faCalendarDays"></fa-icon> Spaced Repetition</button>
+    </div>
+  </div>
   <div class="mt-4 d-flex justify-content-between align-items-center" *ngIf="set">
     <div class="d-flex align-items-center">
       <a [routerLink]="['/profile', set.authorId]"><button type="button" class="btn btn-light bg-white shadow-sm"><fa-icon [icon]="['far', 'user']"></fa-icon> Created by <span class="fw-bold">{{author}}</span></button></a>
@@ -28,10 +33,10 @@
     <p class="text-secondary text-wrap text-break">{{set.description}}</p>
   </div>
   <hr>
-  <div class="mt-4 d-flex justify-content-between" *ngIf="set">
-    <div class="w-100" *ngIf="loggedIn">
+  <div class="mt-4 d-flex justify-content-between" *ngIf="spacedRepetitionEnabled">
+    <div class="w-100">
       <h5>Spaced Repetition <span class="badge bg-primary text-white fw-normal">Beta</span></h5>
-      <div *ngIf="spacedRepetitionEnabled">
+      <div>
         <div class="container-fluid text-center mt-4">
           <div class="d-flex justify-content-evenly row row-cols-1 row-cols-md-2">
             <div class="col-md-3 bg-white shadow rounded">
@@ -62,9 +67,6 @@
             </span>
           </button>
         </div>
-      </div>
-      <div *ngIf="!spacedRepetitionEnabled">
-        <button class="btn btn-primary">Start</button>
       </div>
     </div>
   </div>
@@ -197,3 +199,4 @@
 </div>
 
 <scholarsome-quizlet-export-modal #quizletExportModal></scholarsome-quizlet-export-modal>
+<scholarsome-start-spaced-repetition-modal #startSpacedRepetitionModal></scholarsome-start-spaced-repetition-modal>

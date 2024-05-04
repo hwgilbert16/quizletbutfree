@@ -9,6 +9,9 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { StudySetRoutingModule } from "./study-set-routing.module";
 import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-export-modal.component";
 import { SpacedRepetitionFlashcardsComponent } from "./spaced-repetition/spaced-repetition-flashcards.component";
+import {
+  StartSpacedRepetitionModalComponent
+} from "./start-spaced-repetition-modal/start-spaced-repetition-modal.component";
 
 @NgModule({
   imports: [
@@ -25,7 +28,8 @@ import { SpacedRepetitionFlashcardsComponent } from "./spaced-repetition/spaced-
     StudySetQuizComponent,
     StudySetQuizQuestionComponent,
     QuizletExportModalComponent,
-    SpacedRepetitionFlashcardsComponent
+    SpacedRepetitionFlashcardsComponent,
+    StartSpacedRepetitionModalComponent
   ],
   exports: []
 })

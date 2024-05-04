@@ -14,12 +14,16 @@ import { UsersService } from "../shared/http/users.service";
 import { Meta, Title } from "@angular/platform-browser";
 import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-export-modal.component";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
-import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages, faPlay, faForwardStep, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages, faPlay, faForwardStep, faClock, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
 import { ConvertingService } from "../shared/http/converting.service";
 import { SpacedRepetitionService } from "../shared/http/spaced-repetition.service";
 import { SharedService } from "../shared/shared.service";
 import { SpacedRepetitionCard } from "@prisma/client";
 import { DateTime } from "luxon";
+import {
+  StartSpacedRepetitionModalComponent
+} from "./start-spaced-repetition-modal/start-spaced-repetition-modal.component";
+import { ModalService } from "../shared/modal.service";
 
 @Component({
   selector: "scholarsome-study-set",
@@ -36,7 +40,8 @@ export class StudySetComponent implements OnInit {
     private readonly setsService: SetsService,
     private readonly convertingService: ConvertingService,
     private readonly spacedRepetitionService: SpacedRepetitionService,
-    private readonly sharedService: SharedService
+    private readonly sharedService: SharedService,
+    public readonly modalService: ModalService
   ) {}
 
   @ViewChild("spinner", { static: true }) spinner: ElementRef;
@@ -48,6 +53,7 @@ export class StudySetComponent implements OnInit {
   @ViewChild("editTitle", { static: false }) editTitle: ElementRef;
 
   @ViewChild("quizletExportModal") quizletExportModal: QuizletExportModalComponent;
+  @ViewChild("startSpacedRepetitionModal") startSpacedRepetitionModal: StartSpacedRepetitionModalComponent;
 
   protected userIsAuthor = false;
   protected isEditing = false;
@@ -58,6 +64,7 @@ export class StudySetComponent implements OnInit {
 
   protected cards: ComponentRef<CardComponent>[] = [];
   protected set: Set;
+  protected userTimezone: string;
 
   protected saveInProgress = false;
   protected ankiExportInProgress = false;
@@ -92,6 +99,7 @@ export class StudySetComponent implements OnInit {
   protected readonly faPlay = faPlay;
   protected readonly faForwardStep = faForwardStep;
   protected readonly faClock = faClock;
+  protected readonly faCalendarDays = faCalendarDays;
 
   protected readonly navigator = navigator;
   protected readonly window = window;
@@ -389,7 +397,10 @@ export class StudySetComponent implements OnInit {
     this.metaService.addTag({ name: "description", content: description });
 
     const user = await this.users.myUser();
-    if (user) this.loggedIn = true;
+    if (user) {
+      this.loggedIn = true;
+      this.userTimezone = user.timezone;
+    }
 
     this.set = set;
 

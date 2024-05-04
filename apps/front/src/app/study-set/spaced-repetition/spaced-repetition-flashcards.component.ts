@@ -89,7 +89,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
   }
 
   updateIndex() {
-    this.remainingCards = `${this.alreadyCompletedCards + this.index + 1}/${this.cards.length}`;
+    this.remainingCards = `${this.alreadyCompletedCards + this.index + 1}/${this.alreadyCompletedCards + this.cards.length}`;
   }
 
   async submitCard(quality: number) {
@@ -211,13 +211,15 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
 
     spacedRepetitionCards = spacedRepetitionCards.filter((c) => c.due.hasSame(DateTime.now().setZone(user.timezone), "day"));
 
+    const numDueToday = spacedRepetitionSet.cardsPerDay - this.alreadyCompletedCards;
+
     // get cards that are due today, up to the daily limit
-    cards.push(...spacedRepetitionCards.slice(0, spacedRepetitionSet.cardsPerDay));
+    cards.push(...spacedRepetitionCards.slice(0, numDueToday));
 
     // if the array isn't full, fill it with new cards
     // ones that are due take priority over old ones
-    if (cards.length < spacedRepetitionSet.cardsPerDay) {
-      cards.push(...newCards.splice(0, spacedRepetitionSet.cardsPerDay - cards.length));
+    if (cards.length < numDueToday) {
+      cards.push(...newCards.splice(0, numDueToday - cards.length));
     }
 
     this.cards = cards.sort(() => 0.5 - Math.random());
