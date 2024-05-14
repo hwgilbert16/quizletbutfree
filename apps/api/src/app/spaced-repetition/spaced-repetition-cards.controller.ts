@@ -20,6 +20,8 @@ import { SpacedRepetitionSetsService } from "./spaced-repetition-sets.service";
 import { CardIdParam } from "../cards/param/cardId.param";
 import { CardsService } from "../cards/cards.service";
 import { SpacedRepetitionService } from "./spaced-repetition.service";
+import { DateTime } from "luxon";
+import { UsersService } from "../users/users.service";
 
 /*
 this file has a lot of potentially large queries for what should be simple tasks
@@ -36,7 +38,8 @@ export class SpacedRepetitionCardsController {
     private readonly spacedRepetitionCardsService: SpacedRepetitionCardsService,
     private readonly spacedRepetitionSetsService: SpacedRepetitionSetsService,
     private readonly spacedRepetitionService: SpacedRepetitionService,
-    private readonly cardsService: CardsService
+    private readonly cardsService: CardsService,
+    private readonly usersService: UsersService
   ) {}
 
   /**
@@ -96,7 +99,10 @@ export class SpacedRepetitionCardsController {
   })
   @Post(":cardId/review")
   async reviewSpacedRepetitionCard(@Param() params: CardIdParam, @Body() body: UpdateSpacedRepetitionCardDto, @Request() req: ExpressRequest): Promise<ApiResponse<SpacedRepetitionCard>> {
-    const user = await this.authService.getUserInfo(req);
+    const userCookie = await this.authService.getUserInfo(req);
+    if (!userCookie) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+
+    const user = await this.usersService.user({ id: userCookie.id });
     if (!user) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
 
     const card = await this.cardsService.card({
@@ -108,7 +114,7 @@ export class SpacedRepetitionCardsController {
       // eslint-disable-next-line camelcase
       setId_userId: {
         setId: card.setId,
-        userId: user.id
+        userId: userCookie.id
       }
     });
     if (!spacedRepetitionSet) throw new NotFoundException({ status: "fail", message: "Spaced repetition set not found" });
@@ -126,7 +132,10 @@ export class SpacedRepetitionCardsController {
       throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
     }
 
-    if (spacedRepetitionCard.due > new Date()) {
+    const due = DateTime.fromISO(spacedRepetitionCard.due.toString(), { zone: "utc" }).setZone(user.timezone);
+    const now = DateTime.now().setZone(user.timezone);
+
+    if (!due.hasSame(now, "day") && due.startOf("day") >= now.startOf("day")) {
       throw new ConflictException({ status: "fail", message: "This spaced repetition card is not yet due" });
     }
 

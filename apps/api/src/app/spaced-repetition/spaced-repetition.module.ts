@@ -8,13 +8,15 @@ import { SpacedRepetitionCardsController } from "./spaced-repetition-cards.contr
 import { AuthModule } from "../auth/auth.module";
 import { SetsModule } from "../sets/sets.module";
 import { CardsModule } from "../cards/cards.module";
+import { UsersModule } from "../users/users.module";
 
 @Module({
   imports: [
     DatabaseModule,
     AuthModule,
     SetsModule,
-    CardsModule
+    CardsModule,
+    UsersModule
   ],
   controllers: [
     SpacedRepetitionSetsController,

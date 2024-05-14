@@ -10,6 +10,9 @@ import { UsersService } from "../../shared/http/users.service";
 import { DateTime } from "luxon";
 import { SharedService } from "../../shared/shared.service";
 import { SpacedRepetitionCard } from "@scholarsome/shared";
+import {
+  SpacedRepetitionIntroductionModalComponent
+} from "../spaced-repetition-introduction-modal/spaced-repetition-introduction-modal.component";
 
 @Component({
   selector: "scholarsome-spaced-repetition-flashcards",
@@ -27,6 +30,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     public readonly sanitizer: DomSanitizer
   ) {}
 
+  @ViewChild("spacedRepetitionIntroductionModal") spacedRepetitionIntroductionModal: SpacedRepetitionIntroductionModalComponent;
   @ViewChild("flashcardsConfig") configModal: TemplateRef<HTMLElement>;
   @ViewChild("completedRound") roundCompletedModal: TemplateRef<HTMLElement>;
 
@@ -232,6 +236,8 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     this.currentCard = this.cards[0];
 
     this.reviewStartTime = new Date();
+
+    this.spacedRepetitionIntroductionModal.open();
 
     this.pageLoading = false;
   }

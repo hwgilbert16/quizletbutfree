@@ -144,8 +144,6 @@ export class SpacedRepetitionService {
   }): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
 
-    console.log(body);
-
     try {
       spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/cards/" + body.id + "/review", {
         quality: body.quality,

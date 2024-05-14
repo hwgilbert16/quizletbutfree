@@ -376,7 +376,6 @@ export class SetsController {
           for (const mediaFile of completeCard.media) {
             existingMedias.push(mediaFile);
             if (!card.term.includes(mediaFile.name) && !card.definition.includes(mediaFile.name)) {
-              console.log("called once");
               await this.cardsService.deleteCardMedia({ id: mediaFile.id });
               await this.cardsService.deleteMedia(set.id, mediaFile.name);
             }
