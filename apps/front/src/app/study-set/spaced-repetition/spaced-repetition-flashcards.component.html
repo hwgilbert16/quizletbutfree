@@ -18,10 +18,22 @@
       <div class="card text-center shadow-sm">
         <div class="card-body">
           <div class="mt-2 d-flex justify-content-around gap-2">
-            <button type="button" class="w-25 btn btn-danger mb-3" [disabled]="side !== answer" (click)="submitCard(0)">Bad</button>
-            <button type="button" class="w-25 btn btn-warning mb-3" [disabled]="side !== answer" (click)="submitCard(1)">Tricky</button>
-            <button type="button" class="w-25 btn btn-info mb-3" [disabled]="side !== answer" (click)="submitCard(2)">Better</button>
-            <button type="button" class="w-25 btn btn-success mb-3" [disabled]="side !== answer" (click)="submitCard(3)">Easy</button>
+            <button type="button" class="w-25 btn btn-danger mb-3" [disabled]="side !== answer" (click)="submitCard(0)">
+              Bad
+              <span class="fw-bold">({{getInterval(0)}}d)</span>
+            </button>
+            <button type="button" class="w-25 btn btn-warning mb-3" [disabled]="side !== answer" (click)="submitCard(1)">
+              Tricky
+              <span class="fw-bold">({{getInterval(1)}}d)</span>
+            </button>
+            <button type="button" class="w-25 btn btn-info mb-3" [disabled]="side !== answer" (click)="submitCard(2)">
+              Better
+              <span class="fw-bold">({{getInterval(2)}}d)</span>
+            </button>
+            <button type="button" class="w-25 btn btn-success mb-3" [disabled]="side !== answer" (click)="submitCard(3)">
+              Easy
+              <span class="fw-bold">({{getInterval(3)}}d)</span>
+            </button>
           </div>
           <div class="mx-2 d-flex justify-content-between">
             <p class="text-secondary fs-5">{{remainingCards}}</p>

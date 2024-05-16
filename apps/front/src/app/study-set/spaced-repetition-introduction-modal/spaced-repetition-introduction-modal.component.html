@@ -1,22 +1,20 @@
 <ng-template #modal>
   <div class="modal-body">
-    <div class="d-flex justify-content-end">
-      <button type="button" class="btn-close close pull-right" aria-label="Close">
-        <span aria-hidden="true" class="visually-hidden">&times;</span>
-      </button>
-    </div>
     <div class="col">
       <div class="row text-center">
-        <div class="fs-1 mb-2 fw-semibold">
+        <div class="display-5 mt-3 mb-4 fw-semibold">
           Spaced Repetition
         </div>
         <div class="fs-5 text-secondary">
-          <div class="mb-3"><fa-icon [icon]="faNoteSticky"></fa-icon> Spaced repetition is intended as a form of long-term studying. You'll study this set over the course of many weeks and/or months, depending on multiple factors.</div>
+          <div class="mb-3"><fa-icon [icon]="faNoteSticky"></fa-icon> Spaced repetition is intended as a form of long-term studying. You'll continue to study this set for as long as you'd like.</div>
           <div class="mb-3"><fa-icon [icon]="faCalendar"></fa-icon> This is your first day of spaced repetition learning with this set. Come back every day to see what is due.</div>
           <div class="mb-3"><fa-icon [icon]="faSquareCheck"></fa-icon> You'll select from four options to rate how easily you remembered the card.</div>
           <div class="mb-3"><fa-icon [icon]="faClock"></fa-icon> The time it takes for you to recall a card is tracked and recorded. Don't leave this page open if you're not studying.</div>
         </div>
       </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-lg btn-primary" (click)="modalRef?.hide()">Get started</button>
     </div>
   </div>
 </ng-template>

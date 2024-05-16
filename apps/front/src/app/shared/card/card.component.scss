@@ -12,6 +12,27 @@
   animation-fill-mode: forwards;
 }
 
+.next-due-at {
+  font-size: 0.85rem;
+}
+
+@media only screen and (min-device-width : 320px) and (max-device-width : 480px) {
+  .term {
+    padding-bottom: 1.5rem;
+  }
+
+  .definition {
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+  }
+}
+
+@media only screen and (min-device-width: 481px) {
+  .term {
+    border-right: 1px solid #dee2e6;
+  }
+}
+
 @keyframes button-color-change {
   0% {
     color: #212529;

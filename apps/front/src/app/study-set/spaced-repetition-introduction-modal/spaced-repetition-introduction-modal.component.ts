@@ -22,7 +22,7 @@ export class SpacedRepetitionIntroductionModalComponent {
   protected readonly faClock = faClock;
 
   public open(): BsModalRef {
-    this.modalRef = this.bsModalService.show(this.modal);
+    this.modalRef = this.bsModalService.show(this.modal, { ignoreBackdropClick: true, keyboard: false });
 
     return this.modalRef;
   }

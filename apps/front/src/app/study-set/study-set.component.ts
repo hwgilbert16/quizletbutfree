@@ -63,6 +63,7 @@ export class StudySetComponent implements OnInit {
   protected author: string;
 
   protected cards: ComponentRef<CardComponent>[] = [];
+  protected dueDates: { cardId: string; dueIn: number; }[];
   protected set: Set;
   protected userTimezone: string;
 
@@ -188,6 +189,7 @@ export class StudySetComponent implements OnInit {
     trashCan?: boolean;
     term?: string;
     definition?: string;
+    nextDueAt?: number;
   }) {
     const card = this.cardsContainer.createComponent<CardComponent>(CardComponent);
 
@@ -201,6 +203,7 @@ export class StudySetComponent implements OnInit {
     card.instance.trashCan = opts.trashCan ? opts.trashCan : false;
     card.instance.term = opts.term ? opts.term : "";
     card.instance.definition = opts.definition ? opts.definition : "";
+    card.instance.nextDueAt = opts.nextDueAt;
 
     card.instance.deleteCardEvent.subscribe((e) => {
       if (this.cardsContainer.length > 1) {
@@ -337,7 +340,8 @@ export class StudySetComponent implements OnInit {
             index: card.index,
             editingEnabled: false,
             term: card.term,
-            definition: card.definition
+            definition: card.definition,
+            nextDueAt: this.spacedRepetitionEnabled ? this.dueDates.find((c) => c.cardId === card.id)?.dueIn : undefined
           });
         }
       }
@@ -418,13 +422,19 @@ export class StudySetComponent implements OnInit {
             lastStudiedAt: this.sharedService.convertUtcStringToTimeZone(card.lastStudiedAt.toString(), user.timezone) ?? DateTime.now()
           }));
 
-        this.cardsPerDay = spacedRepetitionSet.cardsPerDay;
-        this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+        const now = DateTime.now().setZone(user.timezone);
 
-        this.studySessionStartedToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(DateTime.now().setZone(user.timezone), "day")).length > 0;
+        this.cardsPerDay = spacedRepetitionSet.cardsPerDay;
+        this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length;
+
+        this.studySessionStartedToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length > 0;
 
         this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
-        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(DateTime.now().setZone(user.timezone), "day")).length;
+        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(now, "day")).length;
+
+        this.dueDates = spacedRepetitionCards.map((c) => {
+          return { cardId: c.cardId, dueIn: c.due.toMillis() - DateTime.now().toMillis() };
+        });
 
         const numberOfNewCards = spacedRepetitionCards.filter((c) => c.due.toMillis() === DateTime.fromISO("1970-01-01T00:00:01.000Z").toMillis()).length;
 

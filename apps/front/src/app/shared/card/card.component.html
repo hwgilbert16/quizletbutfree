@@ -13,9 +13,15 @@
     </div>
     <div class="container-fluid" #inputsContainer>
       <span class="text-secondary" *ngIf="actualTerm.length === 0 && actualDefinition.length === 0">Click <span class="text-decoration-underline edit-text" (click)="openEditModal()">here</span> to edit this card.</span>
-      <div class="row">
-        <div class="col border-end fs-5 w-50 h-100 overflow-hidden" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualTerm)" #termDiv></div>
-        <div class="col fs-5 w-50 h-100 overflow-hidden" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualDefinition)" #definitionDiv></div>
+      <div class="row row-cols-md-2 row-cols-1">
+        <div class="col-md-6 fs-5 overflow-hidden term" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualTerm)" #termDiv></div>
+        <div class="col-md-6 fs-5 overflow-hidden definition" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualDefinition)" #definitionDiv></div>
+      </div>
+      <div class="text-secondary mt-5 next-due-at" *ngIf="nextDueAt && !notYetStudied">
+        <fa-icon [icon]="faClock" [ngClass]="{'text-danger': lateDays, 'text-primary': dueToday}"></fa-icon>&nbsp;
+        <span *ngIf="dueDays && !dueToday && !notYetStudied">Next due in: {{dueDays}} days</span>
+        <span *ngIf="lateDays && !dueDays && !notYetStudied">Late by: {{lateDays}} days</span>
+        <span *ngIf="dueToday">Due today</span>
       </div>
     </div>
   </div>

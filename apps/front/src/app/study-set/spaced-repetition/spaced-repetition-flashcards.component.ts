@@ -2,14 +2,14 @@ import { Component, HostListener, OnInit, TemplateRef, ViewChild } from "@angula
 import { ActivatedRoute, Router } from "@angular/router";
 import { DomSanitizer, Title } from "@angular/platform-browser";
 import { Side, Card } from "@prisma/client";
-import { BsModalRef } from "ngx-bootstrap/modal";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { faThumbsUp, faCake } from "@fortawesome/free-solid-svg-icons";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import { SpacedRepetitionService } from "../../shared/http/spaced-repetition.service";
 import { UsersService } from "../../shared/http/users.service";
 import { DateTime } from "luxon";
 import { SharedService } from "../../shared/shared.service";
-import { SpacedRepetitionCard } from "@scholarsome/shared";
+import { sm2, SpacedRepetitionCard } from "@scholarsome/shared";
 import {
   SpacedRepetitionIntroductionModalComponent
 } from "../spaced-repetition-introduction-modal/spaced-repetition-introduction-modal.component";
@@ -27,6 +27,7 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     private readonly titleService: Title,
     private readonly spacedRepetitionService: SpacedRepetitionService,
     private readonly sharedService: SharedService,
+    private readonly bsModalService: BsModalService,
     public readonly sanitizer: DomSanitizer
   ) {}
 
@@ -161,6 +162,10 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
       this.answer === Side.DEFINITION ? this.cards[this.index].card.term : this.cards[this.index].card.definition;
   }
 
+  getInterval(quality: number): number {
+    return sm2(quality, this.currentCard.repetitions, this.currentCard.easeFactor, ((this.currentCard.due.toMillis() - this.currentCard.lastStudiedAt.toMillis()) / 8.64e7)).interval;
+  }
+
   reloadPage() {
     this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {
       this.router.navigate(["/study-set/" + this.setId + "/flashcards"]);
@@ -235,10 +240,24 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
     this.sideText = this.cards[0]["card"][this.side.toLowerCase() as keyof Card] as string;
     this.currentCard = this.cards[0];
 
-    this.reviewStartTime = new Date();
+    // show the intro modal if all the cards are new
+    if (
+      spacedRepetitionSet.spacedRepetitionCards.filter((c) => new Date(c.due).toISOString() === "1970-01-01T00:00:01.000Z").length ===
+      spacedRepetitionSet.spacedRepetitionCards.length
+    ) {
+      this.spacedRepetitionIntroductionModal.open();
 
-    this.spacedRepetitionIntroductionModal.open();
+      const subscription = this.bsModalService.onHide.subscribe(() => {
+        this.reviewStartTime = new Date();
+
+        subscription.unsubscribe();
+      });
+    } else {
+      this.reviewStartTime = new Date();
+    }
 
     this.pageLoading = false;
   }
+
+  protected readonly sm2 = sm2;
 }
