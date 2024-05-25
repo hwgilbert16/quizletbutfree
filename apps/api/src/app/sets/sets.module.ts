@@ -7,6 +7,7 @@ import { CardsModule } from "../cards/cards.module";
 import { AuthModule } from "../auth/auth.module";
 import { StorageModule } from "../providers/storage/storage.module";
 import { FoldersModule } from "../folders/folders.module";
+import { SpacedRepetitionModule } from "../spaced-repetition/spaced-repetition.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { FoldersModule } from "../folders/folders.module";
     UsersModule,
     forwardRef(() => CardsModule),
     forwardRef(() => FoldersModule),
+    forwardRef(() => SpacedRepetitionModule),
     AuthModule,
     StorageModule,
     FoldersModule

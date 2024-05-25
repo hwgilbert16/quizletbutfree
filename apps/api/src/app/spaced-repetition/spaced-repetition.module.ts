@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { SpacedRepetitionService } from "./spaced-repetition.service";
 import { SpacedRepetitionSetsService } from "./spaced-repetition-sets.service";
 import { SpacedRepetitionCardsService } from "./spaced-repetition-cards.service";
@@ -14,8 +14,8 @@ import { UsersModule } from "../users/users.module";
   imports: [
     DatabaseModule,
     AuthModule,
-    SetsModule,
-    CardsModule,
+    forwardRef(() => SetsModule),
+    forwardRef(() => CardsModule),
     UsersModule
   ],
   controllers: [
@@ -26,6 +26,7 @@ import { UsersModule } from "../users/users.module";
     SpacedRepetitionService,
     SpacedRepetitionSetsService,
     SpacedRepetitionCardsService
-  ]
+  ],
+  exports: [SpacedRepetitionService]
 })
 export class SpacedRepetitionModule {}

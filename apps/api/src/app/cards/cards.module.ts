@@ -6,6 +6,7 @@ import { SetsModule } from "../sets/sets.module";
 import { UsersModule } from "../users/users.module";
 import { AuthModule } from "../auth/auth.module";
 import { StorageModule } from "../providers/storage/storage.module";
+import { SpacedRepetitionModule } from "../spaced-repetition/spaced-repetition.module";
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { StorageModule } from "../providers/storage/storage.module";
     UsersModule,
     forwardRef(() => SetsModule),
     AuthModule,
-    StorageModule
+    StorageModule,
+    forwardRef(() => SpacedRepetitionModule)
   ],
   controllers: [CardsController],
   providers: [CardsService],

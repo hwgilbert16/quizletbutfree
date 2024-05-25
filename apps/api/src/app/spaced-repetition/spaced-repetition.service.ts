@@ -1,7 +1,15 @@
 import { Injectable } from "@nestjs/common";
+import { SpacedRepetitionSetsService } from "./spaced-repetition-sets.service";
+import { PrismaService } from "../providers/database/prisma/prisma.service";
+import { CardWithIdValidator } from "../sets/validator/cardWithId.validator";
 
 @Injectable()
 export class SpacedRepetitionService {
+  constructor(
+    private spacedRepetitionSetsService: SpacedRepetitionSetsService,
+    private prisma: PrismaService
+  ) {}
+
   /**
    * Implementation of the SM2 spaced repetition algorithm
    *
@@ -56,5 +64,42 @@ export class SpacedRepetitionService {
       repetitions,
       easeFactor: +easeFactor.toFixed(3)
     };
+  }
+
+  async addNewSpacedRepetitionCards(setId: string, newCards: CardWithIdValidator[]) {
+    const spacedRepetitionSets = await this.spacedRepetitionSetsService.spacedRepetitionSets({
+      where: {
+        setId
+      }
+    });
+
+    const queries = [];
+
+    for (const spacedRepetitionSet of spacedRepetitionSets) {
+      queries.push(this.prisma.spacedRepetitionSet.update({
+        where: {
+          id: spacedRepetitionSet.id
+        },
+        data: {
+          spacedRepetitionCards: {
+            createMany: {
+              data: newCards.map((c) => {
+                return {
+                  cardId: c.id
+                };
+              })
+            }
+          }
+        }
+      }));
+    }
+
+    // this transaction will finish after the user has already received a response
+    // so no point in doing anything if this fails
+    try {
+      await this.prisma.$transaction(queries);
+    } catch (e) {
+      return;
+    }
   }
 }

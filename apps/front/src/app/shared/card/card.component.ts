@@ -92,7 +92,7 @@ export class CardComponent implements OnInit, AfterViewInit {
         if (dueDays < 1) {
           this.dueToday = true;
         } else {
-          this.dueDays = Math.ceil(dueDays);
+          this.dueDays = Math.floor(dueDays);
         }
       } else {
         if (dueDays < 19000) {

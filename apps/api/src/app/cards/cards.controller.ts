@@ -35,6 +35,8 @@ import { UpdateCardDto } from "./dto/updateCard.dto";
 import { CardSuccessResponse } from "./response/success/card.success.response";
 import { ErrorResponse } from "../shared/response/error.response";
 import { AuthService } from "../auth/auth.service";
+import { SpacedRepetitionService } from "../spaced-repetition/spaced-repetition.service";
+import * as crypto from "crypto";
 
 @ApiTags("Cards")
 @Controller("sets/cards")
@@ -43,7 +45,8 @@ export class CardsController {
     private readonly cardsService: CardsService,
     private readonly setsService: SetsService,
     private readonly usersService: UsersService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly spacedRepetitionService: SpacedRepetitionService
   ) {}
 
   /**
@@ -159,27 +162,36 @@ export class CardsController {
       media = [...media, ...definitionScanned.media];
     }
 
+    const id = crypto.randomUUID();
+
+    const create = await this.cardsService.createCard({
+      id,
+      index: index,
+      term: body.term,
+      definition: body.definition,
+      media: {
+        createMany: {
+          data: media.map((c) => {
+            return {
+              name: c
+            };
+          })
+        }
+      },
+      set: {
+        connect: {
+          id: body.setId
+        }
+      }
+    });
+
+    // this should not be awaited
+    // user should not have to wait for other users' spaced repetition sets to update
+    this.spacedRepetitionService.addNewSpacedRepetitionCards(body.setId, [{ id, index, term: body.term, definition: body.definition }]);
+
     return {
       status: ApiResponseOptions.Success,
-      data: await this.cardsService.createCard({
-        index: index,
-        term: body.term,
-        definition: body.definition,
-        media: {
-          createMany: {
-            data: media.map((c) => {
-              return {
-                name: c
-              };
-            })
-          }
-        },
-        set: {
-          connect: {
-            id: body.setId
-          }
-        }
-      })
+      data: create
     };
   }
 

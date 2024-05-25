@@ -114,6 +114,8 @@ export class SpacedRepetitionFlashcardsComponent implements OnInit {
       recallTime: Math.floor(new Date().getTime() - this.reviewStartTime.getTime())
     });
 
+    this.reviewStartTime = new Date();
+
     this.cardSubmitting = false;
   }
 

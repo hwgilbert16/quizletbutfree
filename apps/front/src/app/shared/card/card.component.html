@@ -17,7 +17,7 @@
         <div class="col-md-6 fs-5 overflow-hidden term" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualTerm)" #termDiv></div>
         <div class="col-md-6 fs-5 overflow-hidden definition" [innerHTML]="sanitizer.bypassSecurityTrustHtml(actualDefinition)" #definitionDiv></div>
       </div>
-      <div class="text-secondary mt-5 next-due-at" *ngIf="nextDueAt && !notYetStudied">
+      <div class="text-secondary mt-3 next-due-at" *ngIf="nextDueAt && !notYetStudied">
         <fa-icon [icon]="faClock" [ngClass]="{'text-danger': lateDays, 'text-primary': dueToday}"></fa-icon>&nbsp;
         <span *ngIf="dueDays && !dueToday && !notYetStudied">Next due in: {{dueDays}} days</span>
         <span *ngIf="lateDays && !dueDays && !notYetStudied">Late by: {{lateDays}} days</span>

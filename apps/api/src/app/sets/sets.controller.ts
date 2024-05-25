@@ -41,6 +41,7 @@ import { HtmlDecodePipe } from "./pipes/html-decode.pipe";
 import { FoldersService } from "../folders/folders.service";
 import { CardWithIdValidator } from "./validator/cardWithId.validator";
 import { PrismaService } from "../providers/database/prisma/prisma.service";
+import { SpacedRepetitionService } from "../spaced-repetition/spaced-repetition.service";
 
 @ApiTags("Sets")
 @Controller("sets")
@@ -51,6 +52,7 @@ export class SetsController {
     private readonly cardsService: CardsService,
     private readonly authService: AuthService,
     private readonly foldersService: FoldersService,
+    private readonly spacedRepetitionService: SpacedRepetitionService,
     private readonly prisma: PrismaService
   ) {}
 
@@ -403,7 +405,7 @@ export class SetsController {
         if (existingCard[0].term !== c.term) return true;
         if (existingCard[0].definition !== c.definition) return true;
       }));
-      newCards.push(...body.cards.filter((c) => !c.id));
+      newCards.push(...body.cards.filter((c) => !c.id).map((c) => ({ ...c, id: crypto.randomUUID() })));
       deletedCards.push(...existingCards.filter((c) => body.cards.findIndex((ec) => ec.id === c.id) === -1));
 
       // for cards that have been entirely deleted
@@ -444,6 +446,7 @@ export class SetsController {
           createMany: {
             data: newCards.map((c) => {
               return {
+                id: c.id,
                 index: c.index,
                 term: c.term,
                 definition: c.definition
@@ -497,6 +500,10 @@ export class SetsController {
         name: file
       });
     }
+
+    // this should not be awaited
+    // user should not have to wait for other users' spaced repetition sets to update
+    this.spacedRepetitionService.addNewSpacedRepetitionCards(set.id, newCards);
 
     return {
       status: ApiResponseOptions.Success,
