@@ -12,7 +12,7 @@ Spaced repetition is research-proven learning technique that involves reviewing 
 
 Any set in Scholarsome can be studied using spaced repetition - including ones you haven't made yourself. As long as you have an account and can access a public set, you can learn using spaced repetition.
 
-Before starting, it is critical that your timezone is set to your correct one. To do this, click on your user at the top right of any page, and click settings. At the top, there is a section called "Change timezone." Use the dropdown to indicate your timezone, and then click the purple button named "Change timezone."
+Before starting, it is critical that your timezone is set to your correct one. To do this, click on your user at the top right of any page, and click settings. At the top, there is a section called "Change timezone." Use the dropdown to indicate your timezone, and then click the purple button named "Change timezone." If you created an account in version v1.3.0 or later, your timezone should be automatically set. Either way, you should check that it is accurate before proceeding.
 
 After your timezone is set, navigate to the set you'd like to study within Scholarsome and click on the "Spaced Repetition" button at the top of the page. A window will open. In this window, you'll need to input the number of cards that you would like to study each day for this set. This can be any positive number, but the recommendation is anywhere from 20-30, depending on the size of your set, and the amount of time you'd like to spend each day studying.
 

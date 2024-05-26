@@ -31,6 +31,7 @@ export class StartSpacedRepetitionModalComponent {
   protected error = false;
 
   protected set: Set;
+  protected answerWith: "TERM" | "DEFINITION";
   protected userTimezone: string | undefined;
 
   protected modalRef?: BsModalRef;
@@ -52,7 +53,7 @@ export class StartSpacedRepetitionModalComponent {
   public async submit(form: NgForm) {
     this.clicked = true;
 
-    const spacedRepetitionSet = await this.spacedRepetitionService.createSpacedRepetitionSet(this.set.id, Number(form.controls["cardsPerDay"].value));
+    const spacedRepetitionSet = await this.spacedRepetitionService.createSpacedRepetitionSet(this.set.id, Number(form.controls["cardsPerDay"].value), this.answerWith);
 
     if (spacedRepetitionSet) {
       this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {

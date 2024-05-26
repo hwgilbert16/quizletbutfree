@@ -19,7 +19,9 @@
   </div>
   <div class="d-flex justify-content-evenly me-md-n2" *ngIf="!spacedRepetitionEnabled">
     <div class="row-cols-12 col-12 m-auto w-100">
-      <button type="button" class="btn btn-lg btn-light bg-white w-100 my-2 shadow-sm" (click)="loggedIn ? startSpacedRepetitionModal.open(this.set, this.userTimezone) : modalService.modal.next('login-open')"><fa-icon [icon]="faCalendarDays"></fa-icon> Spaced Repetition</button>
+      <button type="button" class="btn btn-lg btn-light bg-white w-100 my-2 shadow-sm" (click)="loggedIn ? startSpacedRepetitionModal.open(this.set, this.userTimezone) : modalService.modal.next('login-open')"><fa-icon [icon]="faCalendarDays"></fa-icon>
+        Spaced Repetition <span class="badge bg-primary text-white fw-normal">New</span>
+      </button>
     </div>
   </div>
   <div class="mt-4 d-flex justify-content-between align-items-center" *ngIf="set">
@@ -35,7 +37,13 @@
   <hr>
   <div class="mt-4 d-flex justify-content-between" *ngIf="spacedRepetitionEnabled">
     <div class="w-100">
-      <h5>Spaced Repetition <span class="badge bg-primary text-white fw-normal">Beta</span></h5>
+      <div class="d-flex justify-content-between align-items-center">
+        <h4>Spaced Repetition</h4>
+        <button class="btn btn-secondary" (click)="spacedRepetitionSettingsModal.open(set.cards.length, set.id, cardsPerDay, spacedRepetitionAnswerWith)">
+          <fa-icon [icon]="faGear"></fa-icon>
+          Settings
+        </button>
+      </div>
       <div>
         <div class="container-fluid text-center mt-4">
           <div class="d-flex justify-content-evenly row row-cols-1 row-cols-md-2">
@@ -200,3 +208,4 @@
 
 <scholarsome-quizlet-export-modal #quizletExportModal></scholarsome-quizlet-export-modal>
 <scholarsome-start-spaced-repetition-modal #startSpacedRepetitionModal></scholarsome-start-spaced-repetition-modal>
+<scholarsome-spaced-repetition-settings-modal #spacedRepetitionSettingsModal></scholarsome-spaced-repetition-settings-modal>

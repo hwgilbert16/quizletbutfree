@@ -100,6 +100,7 @@ export class SpacedRepetitionSetsController {
 
     const spacedRepetitionSet = await this.spacedRepetitionSetsService.createSpacedRepetitionSet({
       cardsPerDay: body.cardsPerDay,
+      answerWith: body.answerWith,
       set: {
         connect: {
           id: params.setId

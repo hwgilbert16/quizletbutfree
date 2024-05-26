@@ -15,6 +15,9 @@ import {
 import {
   SpacedRepetitionIntroductionModalComponent
 } from "./spaced-repetition-introduction-modal/spaced-repetition-introduction-modal.component";
+import {
+  SpacedRepetitionSettingsModalComponent
+} from "./spaced-repetition-settings-modal/spaced-repetition-settings-modal.component";
 
 @NgModule({
   imports: [
@@ -33,7 +36,8 @@ import {
     QuizletExportModalComponent,
     SpacedRepetitionFlashcardsComponent,
     StartSpacedRepetitionModalComponent,
-    SpacedRepetitionIntroductionModalComponent
+    SpacedRepetitionIntroductionModalComponent,
+    SpacedRepetitionSettingsModalComponent
   ],
   exports: []
 })

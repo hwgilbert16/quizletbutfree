@@ -418,7 +418,8 @@ export class AuthController {
         username: registerDto.username,
         email: registerDto.email,
         password: await bcrypt.hash(registerDto.password, 10),
-        verified: !this.configService.get<boolean>("SMTP_HOST")
+        verified: !this.configService.get<boolean>("SMTP_HOST"),
+        timezone: registerDto.timezone ?? undefined
       });
 
       await this.mailService.sendEmailConfirmation(registerDto.email);

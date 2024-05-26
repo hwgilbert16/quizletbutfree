@@ -37,14 +37,15 @@ export class SpacedRepetitionService {
    *
    * @param setId The ID of the set corresponding to the spaced repetition set
    * @param cardsPerDay The number of cards that will be studied each day
+   * @param answerWith The side of the flashcard that the user answers with
    *
    * @returns Created `SpacedRepetitionSet` object
    */
-  async createSpacedRepetitionSet(setId: string, cardsPerDay: number): Promise<SpacedRepetitionSet | null> {
+  async createSpacedRepetitionSet(setId: string, cardsPerDay: number, answerWith?: "TERM" | "DEFINITION"): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
 
     try {
-      spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + setId, { cardsPerDay }));
+      spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + setId, { cardsPerDay, answerWith }));
     } catch (e) {
       return null;
     }

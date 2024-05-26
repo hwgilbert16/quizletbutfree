@@ -14,7 +14,7 @@ import { UsersService } from "../shared/http/users.service";
 import { Meta, Title } from "@angular/platform-browser";
 import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-export-modal.component";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
-import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages, faPlay, faForwardStep, faClock, faCalendarDays } from "@fortawesome/free-solid-svg-icons";
+import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages, faPlay, faForwardStep, faClock, faCalendarDays, faGear } from "@fortawesome/free-solid-svg-icons";
 import { ConvertingService } from "../shared/http/converting.service";
 import { SpacedRepetitionService } from "../shared/http/spaced-repetition.service";
 import { SharedService } from "../shared/shared.service";
@@ -24,6 +24,9 @@ import {
   StartSpacedRepetitionModalComponent
 } from "./start-spaced-repetition-modal/start-spaced-repetition-modal.component";
 import { ModalService } from "../shared/modal.service";
+import {
+  SpacedRepetitionSettingsModalComponent
+} from "./spaced-repetition-settings-modal/spaced-repetition-settings-modal.component";
 
 @Component({
   selector: "scholarsome-study-set",
@@ -54,6 +57,7 @@ export class StudySetComponent implements OnInit {
 
   @ViewChild("quizletExportModal") quizletExportModal: QuizletExportModalComponent;
   @ViewChild("startSpacedRepetitionModal") startSpacedRepetitionModal: StartSpacedRepetitionModalComponent;
+  @ViewChild("spacedRepetitionSettingsModal") spacedRepetitionSettingsModal: SpacedRepetitionSettingsModalComponent;
 
   protected userIsAuthor = false;
   protected isEditing = false;
@@ -75,6 +79,7 @@ export class StudySetComponent implements OnInit {
   protected deleteClicked = false;
 
   protected spacedRepetitionEnabled = false;
+  protected spacedRepetitionAnswerWith: "TERM" | "DEFINITION";
   protected studySessionStartedToday = false;
   protected alreadyCompletedCards = 0;
   protected cardsPerDay = 0;
@@ -101,6 +106,7 @@ export class StudySetComponent implements OnInit {
   protected readonly faForwardStep = faForwardStep;
   protected readonly faClock = faClock;
   protected readonly faCalendarDays = faCalendarDays;
+  protected readonly faGear = faGear;
 
   protected readonly navigator = navigator;
   protected readonly window = window;
@@ -414,6 +420,7 @@ export class StudySetComponent implements OnInit {
       const spacedRepetitionSet = await this.spacedRepetitionService.spacedRepetitionSet(this.setId);
       if (spacedRepetitionSet) {
         this.spacedRepetitionEnabled = true;
+        this.spacedRepetitionAnswerWith = spacedRepetitionSet.answerWith;
 
         const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
           spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
