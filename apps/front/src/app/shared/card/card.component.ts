@@ -16,6 +16,7 @@ import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ViewportScroller } from "@angular/common";
 import { DeviceDetectorService } from "ngx-device-detector";
+import Quill from "quill";
 
 @Component({
   selector: "scholarsome-card",
@@ -152,5 +153,10 @@ export class CardComponent implements OnInit, AfterViewInit {
 
   moveCard(direction: number) {
     this.moveCardEvent.emit({ index: this.cardIndex, direction });
+  }
+
+  // Set cursor position to end
+  focusEditor($event: Quill) {
+    $event.setSelection($event.getLength(), 0);
   }
 }

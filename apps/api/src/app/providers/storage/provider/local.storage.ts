@@ -11,7 +11,7 @@ export class LocalStorageProvider implements StorageProvider {
     this.localStorageDir = configService.get<string>("STORAGE_LOCAL_DIR");
   }
 
-  public async getFile(path: string): Promise<File> {
+  public async getFile(path: string): Promise<File | null> {
     const filePath = nodePath.join(this.localStorageDir, path);
 
     if (!fs.existsSync(filePath)) return null;

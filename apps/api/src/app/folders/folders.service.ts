@@ -40,6 +40,24 @@ export class FoldersService {
   }
 
   /**
+   * Queries the database for every public folder's ID and when they were last modified
+   * Used for sitemap generation
+   *
+   * @returns Array of all folder IDs and when they were last updated
+   */
+  async getSitemapFolderInfo(): Promise<{ id: string, updatedAt: Date }[]> {
+    return this.prisma.folder.findMany({
+      where: {
+        private: false
+      },
+      select: {
+        id: true,
+        updatedAt: true
+      }
+    });
+  }
+
+  /**
    * Queries the database for a unique folder
    *
    * @param folderWhereUniqueInput Prisma `FolderWhereUniqueInput` selector

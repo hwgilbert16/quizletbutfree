@@ -7,5 +7,15 @@
     "target": "http://localhost:3000",
     "secure": false,
     "changeOrigin": true
+  },
+  "/sitemaps": {
+    "target": "http://localhost:3333",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/sitemap.xml": {
+    "target": "http://localhost:3333",
+    "secure": false,
+    "changeOrigin": true
   }
 }

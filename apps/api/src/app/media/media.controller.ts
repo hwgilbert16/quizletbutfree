@@ -1,7 +1,8 @@
 import {
   BadRequestException,
   Body,
-  Controller, Delete,
+  Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -56,24 +57,39 @@ export class MediaController {
     type: ErrorResponse
   })
   @Get(["sets/:setId/media/:file", "media/sets/:setId/:file"])
-  async getSetFile(@Param() params: SetIdAndFileParam, @Request() req: ExpressRequest, @Res({ passthrough: true }) res: Response) {
+  async getSetFile(
+    @Param() params: SetIdAndFileParam,
+    @Request() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response
+  ) {
     const set = await this.setsService.set({
       id: params.setId
     });
-    if (!set) throw new NotFoundException({ status: "fail", message: "Set not found" });
+    if (!set) {
+      throw new NotFoundException({ status: "fail", message: "Set not found" });
+    }
 
     if (set.private) {
       const userCookie = await this.authService.getUserInfo(req);
 
       if (!userCookie || set.authorId !== userCookie.id) {
-        throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+        throw new UnauthorizedException({
+          status: "fail",
+          message: "Invalid authentication to access the requested resource"
+        });
       }
     }
 
-    const file = await this.storageService.getInstance()
+    const file = await this.storageService
+        .getInstance()
         .getFile("media/sets/" + params.setId + "/" + params.file);
 
-    if (!file) throw new NotFoundException({ status: "fail", message: "Media not found" });
+    if (!file) {
+      throw new NotFoundException({
+        status: "fail",
+        message: "Media not found"
+      });
+    }
 
     res.writeHead(200, {
       "Content-Type": "image/" + params.file.split(".").pop()
@@ -86,7 +102,8 @@ export class MediaController {
   @ApiTags("Sets")
   @ApiOperation({
     summary: "Get a set media file",
-    description: "Retrieves a media file that is attached to a set. Deprecated URL - see route above for correct URL.",
+    description:
+      "Retrieves a media file that is attached to a set. Deprecated URL - see route above for correct URL.",
     deprecated: true
   })
   @ApiOkResponse({
@@ -131,12 +148,23 @@ export class MediaController {
     @Query("height") height: string
   ) {
     const userCookie = await this.authService.getUserInfo(req);
-    if (!userCookie) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+    if (!userCookie) {
+      throw new UnauthorizedException({
+        status: "fail",
+        message: "Invalid authentication to access the requested resource"
+      });
+    }
 
-    const file = await this.storageService.getInstance()
+    const file = await this.storageService
+        .getInstance()
         .getFile("media/avatars/" + userCookie.id + ".jpeg");
 
-    if (!file) throw new NotFoundException({ status: "fail", message: "Media not found" });
+    if (!file) {
+      throw new NotFoundException({
+        status: "fail",
+        message: "Media not found"
+      });
+    }
 
     res.writeHead(200, {
       "Content-Type": "image/jpeg"
@@ -186,10 +214,16 @@ export class MediaController {
     @Query("width") width: string,
     @Query("height") height: string
   ) {
-    const file = await this.storageService.getInstance()
+    const file = await this.storageService
+        .getInstance()
         .getFile("media/avatars/" + params.userId + ".jpeg");
 
-    if (!file) throw new NotFoundException({ status: "fail", message: "Media not found" });
+    if (!file) {
+      throw new NotFoundException({
+        status: "fail",
+        message: "Media not found"
+      });
+    }
 
     res.writeHead(200, {
       "Content-Type": "image/jpeg"
@@ -223,11 +257,20 @@ export class MediaController {
     type: ErrorResponse
   })
   @Post("user/me/avatar")
-  async setMyAvatar(@Body() setAvatarDto: SetAvatarDto, @Request() req: ExpressRequest, @UploadedFile() file: Express.Multer.File) {
+  async setMyAvatar(
+    @Body() setAvatarDto: SetAvatarDto,
+    @Request() req: ExpressRequest,
+    @UploadedFile() file: Express.Multer.File
+  ) {
     if (!file) throw new BadRequestException();
 
     const userCookie = await this.authService.getUserInfo(req);
-    if (!userCookie) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+    if (!userCookie) {
+      throw new UnauthorizedException({
+        status: "fail",
+        message: "Invalid authentication to access the requested resource"
+      });
+    }
 
     const avatar = await sharp(file.buffer)
         .jpeg({ progressive: true, force: true, quality: 80 })
@@ -235,7 +278,8 @@ export class MediaController {
         .flatten({ background: "#ffffff" })
         .toBuffer();
 
-    await this.storageService.getInstance()
+    await this.storageService
+        .getInstance()
         .putFile("media/avatars/" + userCookie.id + ".jpeg", avatar);
 
     return {
@@ -259,9 +303,15 @@ export class MediaController {
   @Delete("user/me/avatar")
   async deleteAvatar(@Request() req: ExpressRequest) {
     const userCookie = await this.authService.getUserInfo(req);
-    if (!userCookie) throw new UnauthorizedException({ status: "fail", message: "Invalid authentication to access the requested resource" });
+    if (!userCookie) {
+      throw new UnauthorizedException({
+        status: "fail",
+        message: "Invalid authentication to access the requested resource"
+      });
+    }
 
-    await this.storageService.getInstance()
+    await this.storageService
+        .getInstance()
         .deleteFile("media/avatars/" + userCookie.id + ".jpeg");
 
     return {

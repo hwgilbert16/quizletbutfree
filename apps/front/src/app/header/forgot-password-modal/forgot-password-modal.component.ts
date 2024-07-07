@@ -3,6 +3,8 @@ import { NgForm } from "@angular/forms";
 import { AuthService } from "../../auth/auth.service";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { ApiResponseOptions } from "@scholarsome/shared";
+import { Router } from "@angular/router";
+import { ModalService } from "../../shared/modal.service";
 
 @Component({
   selector: "scholarsome-forgot-password-modal",
@@ -12,7 +14,9 @@ import { ApiResponseOptions } from "@scholarsome/shared";
 export class ForgotPasswordModalComponent {
   constructor(
     private readonly authService: AuthService,
-    private readonly bsModalService: BsModalService
+    private readonly router: Router,
+    private readonly bsModalService: BsModalService,
+    public readonly modalService: ModalService
   ) {
     this.bsModalService.onHide.subscribe(() => {
       this.response = null;
@@ -25,11 +29,17 @@ export class ForgotPasswordModalComponent {
   protected clicked = false;
   protected response: ApiResponseOptions | null;
 
+  protected publicAppEnv = false;
+  protected onLandingPage = false;
+
   protected readonly ApiResponseOptions = ApiResponseOptions;
   protected modalRef?: BsModalRef;
 
   public open(): BsModalRef {
-    this.modalRef = this.bsModalService.show(this.modal);
+    this.publicAppEnv = process.env["NG_APP_ENV"] === "public";
+    this.onLandingPage = this.router.url === "/";
+
+    this.modalRef = this.bsModalService.show(this.modal, { ignoreBackdropClick: !this.publicAppEnv });
     return this.modalRef;
   }
 

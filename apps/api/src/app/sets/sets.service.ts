@@ -86,6 +86,24 @@ export class SetsService {
   }
 
   /**
+   * Queries the database for every public set's ID and when they were last modified
+   * Used for sitemap generation
+   *
+   * @returns Array of all set IDs and when they were last updated
+   */
+  async getSitemapSetInfo(): Promise<{ id: string, updatedAt: Date }[]> {
+    return this.prisma.set.findMany({
+      where: {
+        private: false
+      },
+      select: {
+        id: true,
+        updatedAt: true
+      }
+    });
+  }
+
+  /**
    * Queries the database for a unique set
    *
    * @param setWhereUniqueInput Prisma `SetWhereUniqueInput` selector

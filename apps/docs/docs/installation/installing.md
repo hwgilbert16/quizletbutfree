@@ -66,31 +66,41 @@ Additionally, if you are using S3 as your storage medium, you will need to fill 
 If the SMTP fields are left blank, users will not have to verify their emails. Most installations do not need to enforce email verification, unless you are planning to expose Scholarsome to other users.
 :::
 
+:::info
+Scholarsome has three separate modes: `production`, `public`, and `development`.
+
+**Production mode is the recommended mode** for selfhosted installations where low volume of users will be using the application. In this mode, features intended for a public-facing install (e.g. the standard landing page, sitemaps, etc) are disabled.
+
+Public mode is intended for installations where large volumes of users will be using the application, and all features will be enabled.
+
+Development mode is to be used if you are contributing to Scholarsome's development on a local system.
+:::
+
 <details>
 <summary>Docker Compose Environment Variables</summary>
 
-| Variable Name                   | Description                                                                                                                                                            |
-|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| NODE_ENV                        | **Required.** Declares whether the application is running in development or production. Recommended to be set to `production`.                                         |
-| DATABASE_PASSWORD               | **Required.** Internal password for databases. Select something strong, as you will not need to know this.                                                             |
-| JWT_SECRET                      | **Required.** String used to encrypt cookies and other sensitive items. Select something strong, as you will not need to know this.                                    |
-| HTTP_PORT                       | **Required.** Port that Scholarsome with be accessible through. Recommended to be set to 80. If using SSL, set to 80, as another server will be spawned with port 443. |
-| HOST                            | **Required.** The Domain that Scholarsome will be running on. **Do not include HTTP.**                                                                                 |
-| STORAGE_TYPE                    | **Required.** The method that Scholarsome will store media files, either `local` or `s3`. If set to local, Scholarsome will store media files locally.                 |
-| SMTP_HOST                       | Host to access the SMTP server.                                                                                                                                        |
-| SMTP_PORT                       | Port to access the SMTP server.                                                                                                                                        |
-| SMTP_USERNAME                   | Username to access the SMTP server.                                                                                                                                    |
-| SMTP_PASSWORD                   | Password to access the SMTP server.                                                                                                                                    |
-| SSL_KEY_BASE64                  | Base64 encoded SSL public key.                                                                                                                                         |
-| SSL_CERT_BASE64                 | Base64 encoded SSL certificate.                                                                                                                                        |
-| SCHOLARSOME_RECAPTCHA_SITE      | reCAPTCHA site key.                                                                                                                                                    |
-| SCHOLARSOME_RECAPTCHA_SECRET    | reCAPTCHA secret key.                                                                                                                                                  |
-| SCHOLARSOME_HEAD_SCRIPTS_BASE64 | Base64 encoded HTML of any scripts that should be included in the head tag for every page.                                                                             |
-| S3_STORAGE_ENDPOINT             | Required if storing files in S3. The endpoint of the S3 service.                                                                                                       |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Access key for the S3 service.                                                                                                        |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Secret key for the S3 service.                                                                                                        |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Region for the S3 service.                                                                                                            |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. The name of the bucket being used in S3 to store media files.                                                                         |
+| Variable Name                   | Description                                                                                                                                                                |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NODE_ENV                        | **Required.** Declares whether the application is running in `development`, `production`, or `public` mode. Recommended to be set to `production` for selfhosted installs. |
+| DATABASE_PASSWORD               | **Required.** Internal password for databases. Select something strong, as you will not need to know this.                                                                 |
+| JWT_SECRET                      | **Required.** String used to encrypt cookies and other sensitive items. Select something strong, as you will not need to know this.                                        |
+| HTTP_PORT                       | **Required.** Port that Scholarsome with be accessible through. Recommended to be set to 80. If using SSL, set to 80, as another server will be spawned with port 443.     |
+| HOST                            | **Required.** The Domain that Scholarsome will be running on. **Do not include HTTP.**                                                                                     |
+| STORAGE_TYPE                    | **Required.** The method that Scholarsome will store media files, either `local` or `s3`. If set to local, Scholarsome will store media files locally.                     |
+| SMTP_HOST                       | Host to access the SMTP server.                                                                                                                                            |
+| SMTP_PORT                       | Port to access the SMTP server.                                                                                                                                            |
+| SMTP_USERNAME                   | Username to access the SMTP server.                                                                                                                                        |
+| SMTP_PASSWORD                   | Password to access the SMTP server.                                                                                                                                        |
+| SSL_KEY_BASE64                  | Base64 encoded SSL public key.                                                                                                                                             |
+| SSL_CERT_BASE64                 | Base64 encoded SSL certificate.                                                                                                                                            |
+| SCHOLARSOME_RECAPTCHA_SITE      | reCAPTCHA site key.                                                                                                                                                        |
+| SCHOLARSOME_RECAPTCHA_SECRET    | reCAPTCHA secret key.                                                                                                                                                      |
+| SCHOLARSOME_HEAD_SCRIPTS_BASE64 | Base64 encoded HTML of any scripts that should be included in the head tag for every page.                                                                                 |
+| S3_STORAGE_ENDPOINT             | Required if storing files in S3. The endpoint of the S3 service.                                                                                                           |
+| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Access key for the S3 service.                                                                                                            |
+| S3_STORAGE_SECRET_KEY           | Required if storing files in S3. Secret key for the S3 service.                                                                                                            |
+| S3_STORAGE_REGION               | Required if storing files in S3. Region for the S3 service.                                                                                                                |
+| S3_STORAGE_BUCKET               | Required if storing files in S3. The name of the bucket being used in S3 to store media files.                                                                             |
 
 </details>
 
@@ -134,39 +144,49 @@ Expand the dropdown below, it lists Scholarsome's environment variables. These a
 Ensure that you provide a filepath for the `STORAGE_LOCAL_DIR` variable if using local media storage, or provide S3 authentication details if using S3 as your storage medium.
 
 :::info
-If the SMTP fields are left blank, users will be verified by default. Most installations do not need to enforce email verification.
+If the SMTP fields are left blank, users will not have to verify their emails. Most installations do not need to enforce email verification, unless you are planning to expose Scholarsome to other users.
+:::
+
+:::info
+Scholarsome has three separate modes: `production`, `public`, and `development`.
+
+**Production mode is the recommended mode** for selfhosted installations where low volume of users will be using the application. In this mode, features intended for a public-facing install (e.g. the standard landing page, sitemaps, etc) are disabled.
+
+Public mode is intended for installations where large volumes of users will be using the application, and all features will be enabled.
+
+Development mode is to be used if you are contributing to Scholarsome's development on a local system.
 :::
 
 <details>
 <summary>Docker Environment Variables</summary>
 
-| Variable Name                   | Description                                                                                                                                                            |
-|---------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| NODE_ENV                        | **Required.** Declares whether the application is running in development or production. Recommended to be set to `production`.                                         |
-| DATABASE_URL                    | **Required.** Connection string to the MySQL database. The format should be as follows: `mysql://(username):(password)@(host):(port)/(database)`                       |
-| JWT_SECRET                      | **Required.** String used to encrypt cookies and other sensitive items. Select something strong, as you will not need to know this.                                    |
-| HTTP_PORT                       | **Required.** Port that Scholarsome with be accessible through. Recommended to be set to 80. If using SSL, set to 80, as another server will be spawned with port 443. |
-| HOST                            | **Required.** The domain that Scholarsome will be running on. **Do not include HTTP.**                                                                                 |
-| STORAGE_TYPE                    | **Required.** The method that Scholarsome will store media files, either `local` or `s3`. If set to local, Scholarsome will store media files locally.                 |
-| REDIS_HOST                      | **Required.** Host used to access the Redis database.                                                                                                                  |
-| REDIS_PORT                      | **Required.** Port used to access the Redis database.                                                                                                                  |
-| REDIS_USERNAME                  | **Required.** Username used to access the Redis database.                                                                                                              |
-| REDIS_PASSWORD                  | **Required.** Password used to access the Redis database.                                                                                                              |
-| SMTP_HOST                       | Host to access the SMTP server.                                                                                                                                        |
-| SMTP_PORT                       | Port to access the SMTP server.                                                                                                                                        |
-| SMTP_USERNAME                   | Username to access the SMTP server.                                                                                                                                    |
-| SMTP_PASSWORD                   | Password to access the SMTP server.                                                                                                                                    |
-| SSL_KEY_BASE64                  | Base64 encoded SSL public key.                                                                                                                                         |
-| SSL_CERT_BASE64                 | Base64 encoded SSL certificate.                                                                                                                                        |
-| SCHOLARSOME_RECAPTCHA_SITE      | reCAPTCHA site key.                                                                                                                                                    |
-| SCHOLARSOME_RECAPTCHA_SECRET    | reCAPTCHA secret key.                                                                                                                                                  |
-| SCHOLARSOME_HEAD_SCRIPTS_BASE64 | Base64 encoded HTML of any scripts that should be included in the head tag for every page.                                                                             |
-| STORAGE_LOCAL_DIR               | Required if storing files locally. The absolute filepath pointing to the directory where Scholarsome should store media files.                                         |
-| S3_STORAGE_ENDPOINT             | Required if storing files in S3. The endpoint of the S3 service.                                                                                                       |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Access key for the S3 service.                                                                                                        |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Secret key for the S3 service.                                                                                                        |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Region for the S3 service.                                                                                                            |
-| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. The name of the bucket being used in S3 to store media files.                                                                         |
+| Variable Name                   | Description                                                                                                                                                                |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NODE_ENV                        | **Required.** Declares whether the application is running in `development`, `production`, or `public` mode. Recommended to be set to `production` for selfhosted installs. |
+| DATABASE_URL                    | **Required.** Connection string to the MySQL database. The format should be as follows: `mysql://(username):(password)@(host):(port)/(database)`                           |
+| JWT_SECRET                      | **Required.** String used to encrypt cookies and other sensitive items. Select something strong, as you will not need to know this.                                        |
+| HTTP_PORT                       | **Required.** Port that Scholarsome with be accessible through. Recommended to be set to 80. If using SSL, set to 80, as another server will be spawned with port 443.     |
+| HOST                            | **Required.** The domain that Scholarsome will be running on. **Do not include HTTP.**                                                                                     |
+| STORAGE_TYPE                    | **Required.** The method that Scholarsome will store media files, either `local` or `s3`. If set to local, Scholarsome will store media files locally.                     |
+| REDIS_HOST                      | **Required.** Host used to access the Redis database.                                                                                                                      |
+| REDIS_PORT                      | **Required.** Port used to access the Redis database.                                                                                                                      |
+| REDIS_USERNAME                  | **Required.** Username used to access the Redis database.                                                                                                                  |
+| REDIS_PASSWORD                  | **Required.** Password used to access the Redis database.                                                                                                                  |
+| SMTP_HOST                       | Host to access the SMTP server.                                                                                                                                            |
+| SMTP_PORT                       | Port to access the SMTP server.                                                                                                                                            |
+| SMTP_USERNAME                   | Username to access the SMTP server.                                                                                                                                        |
+| SMTP_PASSWORD                   | Password to access the SMTP server.                                                                                                                                        |
+| SSL_KEY_BASE64                  | Base64 encoded SSL public key.                                                                                                                                             |
+| SSL_CERT_BASE64                 | Base64 encoded SSL certificate.                                                                                                                                            |
+| SCHOLARSOME_RECAPTCHA_SITE      | reCAPTCHA site key.                                                                                                                                                        |
+| SCHOLARSOME_RECAPTCHA_SECRET    | reCAPTCHA secret key.                                                                                                                                                      |
+| SCHOLARSOME_HEAD_SCRIPTS_BASE64 | Base64 encoded HTML of any scripts that should be included in the head tag for every page.                                                                                 |
+| STORAGE_LOCAL_DIR               | Required if storing files locally. The absolute filepath pointing to the directory where Scholarsome should store media files.                                             |
+| S3_STORAGE_ENDPOINT             | Required if storing files in S3. The endpoint of the S3 service.                                                                                                           |
+| S3_STORAGE_ACCESS_KEY           | Required if storing files in S3. Access key for the S3 service.                                                                                                            |
+| S3_STORAGE_SECRET_KEY           | Required if storing files in S3. Secret key for the S3 service.                                                                                                            |
+| S3_STORAGE_REGION               | Required if storing files in S3. Region for the S3 service.                                                                                                                |
+| S3_STORAGE_BUCKET               | Required if storing files in S3. The name of the bucket being used in S3 to store media files.                                                                             |
 
 </details>
 

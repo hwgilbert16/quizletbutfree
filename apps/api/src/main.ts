@@ -12,6 +12,8 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as fs from "fs";
 import { LoggerFactory } from "./app/shared/logger.factory";
 import helmet from "helmet";
+import { missingSitemapMiddleware } from "./app/providers/missing-sitemap.middleware";
+import { noIndexMiddleware } from "./app/providers/no-index.middleware";
 
 async function bootstrap() {
   const validation = envSchema
@@ -28,7 +30,7 @@ async function bootstrap() {
   const server = express();
 
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
-    bufferLogs: process.env.NODE_ENV === "production"
+    bufferLogs: process.env.NODE_ENV !== "development"
   });
 
   app.enableCors();
@@ -48,11 +50,12 @@ async function bootstrap() {
     app.use(helmet({
       contentSecurityPolicy: {
         directives: {
-          "script-src": ["'self'", "'unsafe-eval'", "'unsafe-inline'", "blob:", "https://www.gstatic.com", "https://www.google.com", "https://googletagmanager.com"],
-          "img-src": ["'self'", "blob:", "data:", "https://cdn.redoc.ly"],
+          "script-src": ["'self'", "'unsafe-eval'", "'unsafe-inline'", "blob:", "https://www.gstatic.com", "https://www.google.com", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://ssl.google-analytics.com"],
+          "img-src": ["'self'", "blob:", "data:", "https://cdn.redoc.ly", "https://www.google-analytics.com"],
           "script-src-attr": ["'unsafe-inline'"],
-          "default-src": ["'self'", "https://api.github.com/", "https://google-analytics.com"],
-          "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com/"]
+          "default-src": ["'self'", "https://api.github.com", "https://google-analytics.com"],
+          "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com/"],
+          "connect-src": ["'self'", "https://www.google-analytics.com", "https://api.github.com"]
         }
       }
     }));
@@ -69,7 +72,7 @@ async function bootstrap() {
       new ValidationPipe({
         whitelist: true,
         transform: true,
-        disableErrorMessages: process.env.NODE_ENV === "production"
+        disableErrorMessages: process.env.NODE_ENV === "production" || process.env.NODE_ENV === "public"
       })
   );
 
@@ -79,6 +82,11 @@ async function bootstrap() {
   app.use(compression());
   app.use(express.json({ limit: "30mb" }));
   app.use(express.urlencoded({ limit: "30mb", extended: true }));
+
+  // these middleware functions need to run before the serve static module,
+  // therefore they are functional middleware instead of being class-based
+  app.use(missingSitemapMiddleware);
+  app.use(noIndexMiddleware);
 
   if (
     process.env.SSL_KEY_BASE64 &&

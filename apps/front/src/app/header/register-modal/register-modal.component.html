@@ -1,7 +1,17 @@
 <ng-template #modal>
   <div class="modal-header bg-white">
-    <h4 class="modal-title pull-left">Sign up</h4>
-    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+    <h4 class="modal-title pull-left" *ngIf="publicAppEnv">Sign up</h4>
+    <div class="modal-title w-100 text-center" *ngIf="!publicAppEnv">
+      <img
+        class="navbar-brand img-fluid mt-1"
+        src="assets/header/scholarsome-logo-purple-lowercase.svg"
+        alt="Scholarsome"
+        width="75%"
+        height="75%"
+      />
+      <p class="text-secondary mt-3 mb-n1 mx-auto w-75">Register an account at the Scholarsome instance running at {{appUrl}}</p>
+    </div>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" *ngIf="publicAppEnv" (click)="modalRef?.hide()">
       <span aria-hidden="true" class="visually-hidden">&times;</span>
     </button>
   </div>
@@ -21,10 +31,10 @@
       <div class="mb-3">
         <label for="register-password" class="form-label">Password</label>
         <input type="password" class="form-control" id="register-password" name="password" ngModel required>
-        <div class="form-text mb-3">By clicking sign up, I agree to Scholarsome's
+        <div class="form-text mb-3" *ngIf="publicAppEnv">By clicking sign up, I agree to Scholarsome's
           <a href="https://scholarsome.com/legal/terms">Terms of Service</a> and
           <a href="https://scholarsome.com/legal/privacy">Privacy Policy.</a></div>
-        <div class="form-text">This site is protected by reCAPTCHA and the Google
+        <div class="form-text" *ngIf="recaptchaEnabled">This site is protected by reCAPTCHA and the Google
           <a href="https://policies.google.com/privacy">Privacy Policy</a> and
           <a href="https://policies.google.com/terms">Terms of Service</a> apply.</div>
       </div>

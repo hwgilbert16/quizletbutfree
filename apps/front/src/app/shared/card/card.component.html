@@ -37,7 +37,7 @@
       <div class="row row-cols-1 row-cols-md-2">
         <div class="col border-end">
           <p class="fs-2">Term</p>
-          <quill-editor [(ngModel)]="changingTerm" (ngModelChange)="editCardEvent.emit()" id="termEditor" class="w-100"></quill-editor>
+          <quill-editor (onEditorCreated)="focusEditor($event)" [(ngModel)]="changingTerm" (ngModelChange)="editCardEvent.emit()" id="termEditor" class="w-100"></quill-editor>
         </div>
         <div class="col mt-4 mt-md-0">
           <p class="fs-2 pull-right">Definition</p>

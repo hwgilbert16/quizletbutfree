@@ -10,6 +10,21 @@ export class UsersService {
   ) {}
 
   /**
+   * Queries the database for every user ID and when they were last modified
+   * Used for sitemap generation
+   *
+   * @returns Array of all user IDs and when they were last updated
+   */
+  async getSitemapUserInfo(): Promise<{ id: string, updatedAt: Date }[]> {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        updatedAt: true
+      }
+    });
+  }
+
+  /**
    * Queries the database for a unique user
    *
    * @param userWhereUniqueInput Prisma `UserWhereUniqueInput` selector

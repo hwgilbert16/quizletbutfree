@@ -20,11 +20,17 @@ export class S3StorageProvider implements StorageProvider {
     this.bucket = configService.get<string>("S3_STORAGE_BUCKET");
   }
 
-  public async getFile(path: string): Promise<File> {
-    const file = await this.s3.getObject({
-      Key: path,
-      Bucket: this.bucket
-    });
+  public async getFile(path: string): Promise<File | null> {
+    let file;
+
+    try {
+      file = await this.s3.getObject({
+        Key: path,
+        Bucket: this.bucket
+      });
+    } catch (_) {
+      return null;
+    }
 
     const content = await file.Body.transformToByteArray();
 

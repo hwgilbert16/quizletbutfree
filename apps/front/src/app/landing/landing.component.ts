@@ -34,7 +34,14 @@ export class LandingComponent implements OnInit {
 
   protected readonly document = document;
 
+  protected landingPageEnabled = true;
+
   async ngOnInit(): Promise<void> {
+    if (process.env["NG_APP_ENV"] !== "public") {
+      this.landingPageEnabled = false;
+      this.modalService.modal.next("login-open");
+    }
+
     if (this.cookieService.get("authenticated") === "true") {
       this.location.go("homepage");
       await this.router.navigate(["homepage"]);
