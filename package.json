@@ -145,6 +145,7 @@
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
     "@types/quill": "^2.0.10",
+    "@types/sanitize-html": "^2.11.0",
     "@typescript-eslint/eslint-plugin": "6.13.2",
     "@typescript-eslint/parser": "6.13.2",
     "concurrently": "^7.4.0",
