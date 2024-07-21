@@ -114,6 +114,9 @@ export const sanitizationConfig = {
     ["img"],
     allowedElements
   ),
-  allowedAttributes: { "*": allowedAttributes },
+  allowedAttributes: {
+    ...sanitizeHtml.defaults.allowedAttributes,
+    "*": allowedAttributes,
+  },
   allowedSchemes: ["data"],
 };
