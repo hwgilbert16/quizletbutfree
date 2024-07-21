@@ -107,6 +107,9 @@ const allowedAttributes = [
   "maskUnits",
   "maskContentUnits",
   "clipPathUnits",
+
+  // Dataset attributes
+  "data-*",
 ];
 
 export const sanitizationConfig = {
