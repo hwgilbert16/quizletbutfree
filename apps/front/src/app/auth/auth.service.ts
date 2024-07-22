@@ -160,8 +160,9 @@ export class AuthService {
    * @returns HTTP status of request
    */
   async register(registerForm: RegisterForm): Promise<ApiResponseOptions> {
-    const body: RegisterForm = {
-      ...registerForm
+    const body = {
+      ...registerForm,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
     };
 
     if (process.env["SCHOLARSOME_RECAPTCHA_SECRET"]) {

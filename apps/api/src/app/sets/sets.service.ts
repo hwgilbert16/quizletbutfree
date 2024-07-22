@@ -122,6 +122,7 @@ export class SetsService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -162,6 +163,7 @@ export class SetsService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -187,6 +189,7 @@ export class SetsService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -218,6 +221,7 @@ export class SetsService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }

@@ -23,6 +23,7 @@ import { StorageModule } from "./providers/storage/storage.module";
 import { FoldersModule } from "./folders/folders.module";
 import { ScheduleModule } from "@nestjs/schedule";
 import { TasksService } from "./providers/tasks.service";
+import { SpacedRepetitionModule } from "./spaced-repetition/spaced-repetition.module";
 
 @Module({
   imports: [
@@ -32,7 +33,12 @@ import { TasksService } from "./providers/tasks.service";
         cacheControl: true,
         maxAge: 31536000
       },
-      exclude: ["/api/(.*)", "/handbook/(.*)", "/sitemaps/(.*)", "/sitemap.xml"]
+      exclude: [
+        "/api/(.*)",
+        "/handbook/(.*)",
+        "/sitemaps/(.*)",
+        "/sitemap.xml"
+      ]
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "docs"),
@@ -104,7 +110,8 @@ import { TasksService } from "./providers/tasks.service";
       global: true
     },
     ConvertingModule,
-    FoldersModule
+    FoldersModule,
+    SpacedRepetitionModule
   ],
   controllers: [],
   providers: [TasksService],

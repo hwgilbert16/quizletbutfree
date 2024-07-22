@@ -5,6 +5,7 @@ import { HomepageComponent } from "../homepage/homepage.component";
 import { StudySetFlashcardsComponent } from "./study-set-flashcards/study-set-flashcards.component";
 import { StudySetQuizComponent } from "./study-set-quiz/study-set-quiz.component";
 import { StudySetComponent } from "./study-set.component";
+import { SpacedRepetitionFlashcardsComponent } from "./spaced-repetition/spaced-repetition-flashcards.component";
 
 const routes: Routes = [
   {
@@ -23,6 +24,10 @@ const routes: Routes = [
   {
     path: ":setId/quiz",
     component: StudySetQuizComponent
+  },
+  {
+    path: ":setId/spaced-repetition",
+    component: SpacedRepetitionFlashcardsComponent
   }
 ];
 

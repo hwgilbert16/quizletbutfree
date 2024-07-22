@@ -76,6 +76,7 @@ export class FoldersService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -116,6 +117,7 @@ export class FoldersService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -141,6 +143,7 @@ export class FoldersService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -172,6 +175,7 @@ export class FoldersService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }
@@ -207,6 +211,7 @@ export class FoldersService {
           select: {
             id: true,
             username: true,
+            timezone: true,
             createdAt: true,
             updatedAt: true
           }

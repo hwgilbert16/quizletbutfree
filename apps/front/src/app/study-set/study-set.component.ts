@@ -14,8 +14,19 @@ import { UsersService } from "../shared/http/users.service";
 import { Meta, Title } from "@angular/platform-browser";
 import { QuizletExportModalComponent } from "./quizlet-export-modal/quizlet-export-modal.component";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
-import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages } from "@fortawesome/free-solid-svg-icons";
+import { faFileExport, faShareFromSquare, faPencil, faSave, faCancel, faTrashCan, faClipboard, faStar, faQ, faFileCsv, faImages, faPlay, faForwardStep, faClock, faCalendarDays, faGear } from "@fortawesome/free-solid-svg-icons";
 import { ConvertingService } from "../shared/http/converting.service";
+import { SpacedRepetitionService } from "../shared/http/spaced-repetition.service";
+import { SharedService } from "../shared/shared.service";
+import { SpacedRepetitionCard } from "@prisma/client";
+import { DateTime } from "luxon";
+import {
+  StartSpacedRepetitionModalComponent
+} from "./start-spaced-repetition-modal/start-spaced-repetition-modal.component";
+import { ModalService } from "../shared/modal.service";
+import {
+  SpacedRepetitionSettingsModalComponent
+} from "./spaced-repetition-settings-modal/spaced-repetition-settings-modal.component";
 
 @Component({
   selector: "scholarsome-study-set",
@@ -30,7 +41,10 @@ export class StudySetComponent implements OnInit {
     private readonly titleService: Title,
     private readonly metaService: Meta,
     private readonly setsService: SetsService,
-    private readonly convertingService: ConvertingService
+    private readonly convertingService: ConvertingService,
+    private readonly spacedRepetitionService: SpacedRepetitionService,
+    private readonly sharedService: SharedService,
+    public readonly modalService: ModalService
   ) {}
 
   @ViewChild("spinner", { static: true }) spinner: ElementRef;
@@ -42,15 +56,20 @@ export class StudySetComponent implements OnInit {
   @ViewChild("editTitle", { static: false }) editTitle: ElementRef;
 
   @ViewChild("quizletExportModal") quizletExportModal: QuizletExportModalComponent;
+  @ViewChild("startSpacedRepetitionModal") startSpacedRepetitionModal: StartSpacedRepetitionModalComponent;
+  @ViewChild("spacedRepetitionSettingsModal") spacedRepetitionSettingsModal: SpacedRepetitionSettingsModalComponent;
 
   protected userIsAuthor = false;
   protected isEditing = false;
+  protected loggedIn = false;
   protected setId: string | null;
 
   protected author: string;
 
   protected cards: ComponentRef<CardComponent>[] = [];
+  protected dueDates: { cardId: string; dueIn: number; }[];
   protected set: Set;
+  protected userTimezone: string;
 
   protected saveInProgress = false;
   protected ankiExportInProgress = false;
@@ -58,6 +77,15 @@ export class StudySetComponent implements OnInit {
   protected mediaExportInProgress = false;
   protected uploadTooLarge = false;
   protected deleteClicked = false;
+
+  protected spacedRepetitionEnabled = false;
+  protected spacedRepetitionAnswerWith: "TERM" | "DEFINITION";
+  protected studySessionStartedToday = false;
+  protected alreadyCompletedCards = 0;
+  protected cardsPerDay = 0;
+  protected cardsNotYetStudied = 0;
+  protected cardsDueToday = 0;
+  protected cardsNewToday = 0;
 
   // to disable clipboard button in share dropdown on non https
   protected isHttps = true;
@@ -74,6 +102,11 @@ export class StudySetComponent implements OnInit {
   protected readonly faQ = faQ;
   protected readonly faFileCsv = faFileCsv;
   protected readonly faImages = faImages;
+  protected readonly faPlay = faPlay;
+  protected readonly faForwardStep = faForwardStep;
+  protected readonly faClock = faClock;
+  protected readonly faCalendarDays = faCalendarDays;
+  protected readonly faGear = faGear;
 
   protected readonly navigator = navigator;
   protected readonly window = window;
@@ -162,6 +195,7 @@ export class StudySetComponent implements OnInit {
     trashCan?: boolean;
     term?: string;
     definition?: string;
+    nextDueAt?: number;
   }) {
     const card = this.cardsContainer.createComponent<CardComponent>(CardComponent);
 
@@ -175,6 +209,7 @@ export class StudySetComponent implements OnInit {
     card.instance.trashCan = opts.trashCan ? opts.trashCan : false;
     card.instance.term = opts.term ? opts.term : "";
     card.instance.definition = opts.definition ? opts.definition : "";
+    card.instance.nextDueAt = opts.nextDueAt;
 
     card.instance.deleteCardEvent.subscribe((e) => {
       if (this.cardsContainer.length > 1) {
@@ -311,7 +346,8 @@ export class StudySetComponent implements OnInit {
             index: card.index,
             editingEnabled: false,
             term: card.term,
-            definition: card.definition
+            definition: card.definition,
+            nextDueAt: this.spacedRepetitionEnabled ? this.dueDates.find((c) => c.cardId === card.id)?.dueIn : undefined
           });
         }
       }
@@ -371,10 +407,54 @@ export class StudySetComponent implements OnInit {
     this.metaService.addTag({ name: "description", content: description });
 
     const user = await this.users.myUser();
+    if (user) {
+      this.loggedIn = true;
+      this.userTimezone = user.timezone;
+    }
 
     this.set = set;
 
-    if (user && user.id === set.authorId) this.userIsAuthor = true;
+    if (user) {
+      if (user.id === set.authorId) this.userIsAuthor = true;
+
+      const spacedRepetitionSet = await this.spacedRepetitionService.spacedRepetitionSet(this.setId);
+      if (spacedRepetitionSet) {
+        this.spacedRepetitionEnabled = true;
+        this.spacedRepetitionAnswerWith = spacedRepetitionSet.answerWith;
+
+        const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
+          spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
+            ...card,
+            due: this.sharedService.convertUtcStringToTimeZone(card.due.toString(), user.timezone) ?? DateTime.now(),
+            lastStudiedAt: this.sharedService.convertUtcStringToTimeZone(card.lastStudiedAt.toString(), user.timezone) ?? DateTime.now()
+          }));
+
+        const now = DateTime.now().setZone(user.timezone);
+
+        this.cardsPerDay = spacedRepetitionSet.cardsPerDay;
+        this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length;
+
+        this.studySessionStartedToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length > 0;
+
+        this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
+        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(now, "day")).length;
+
+        this.dueDates = spacedRepetitionCards.map((c) => {
+          return { cardId: c.cardId, dueIn: c.due.toMillis() - DateTime.now().toMillis() };
+        });
+
+        const numberOfNewCards = spacedRepetitionCards.filter((c) => c.due.toMillis() === DateTime.fromISO("1970-01-01T00:00:01.000Z").toMillis()).length;
+
+        if (
+          this.cardsDueToday !== spacedRepetitionSet.cardsPerDay &&
+          numberOfNewCards >= spacedRepetitionSet.cardsPerDay - this.cardsDueToday
+        ) {
+          this.cardsNewToday = spacedRepetitionSet.cardsPerDay - this.cardsDueToday;
+        } else if (this.cardsDueToday !== spacedRepetitionSet.cardsPerDay) {
+          this.cardsNewToday = numberOfNewCards;
+        }
+      }
+    }
 
     if (window.location.href.slice(0, 5) !== "https") {
       this.isHttps = false;

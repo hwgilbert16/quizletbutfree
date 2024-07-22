@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString, IsTimeZone, MaxLength } from "class-validator";
 
 export class RegisterDto {
   @IsString()
@@ -20,4 +20,9 @@ export class RegisterDto {
   @IsOptional()
   @MaxLength(191)
     recaptchaToken: string;
+
+  @IsString()
+  @IsTimeZone()
+  @IsOptional()
+    timezone: string;
 }

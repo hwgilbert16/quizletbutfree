@@ -11,7 +11,7 @@ import {
   ViewContainerRef
 } from "@angular/core";
 import { AlertComponent } from "../alert/alert.component";
-import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+import { faPenToSquare, faClock } from "@fortawesome/free-regular-svg-icons";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ViewportScroller } from "@angular/common";
@@ -46,6 +46,8 @@ export class CardComponent implements OnInit, AfterViewInit {
   @Input() downArrow = true;
   @Input() trashCan = true;
 
+  @Input() nextDueAt?: number;
+
   @Output() addCardEvent = new EventEmitter();
   @Output() deleteCardEvent = new EventEmitter<number>();
   @Output() moveCardEvent = new EventEmitter<{ index: number, direction: number }>();
@@ -64,11 +66,18 @@ export class CardComponent implements OnInit, AfterViewInit {
   protected actualTerm: string;
   protected actualDefinition: string;
 
+  protected dueDays: number;
+  protected lateDays: number;
+  protected dueToday = false;
+  protected notYetStudied = false;
+
   protected emptyCardAlert = false;
 
   protected isMobile = false;
 
   protected modalRef?: BsModalRef;
+
+  protected readonly faClock = faClock;
   protected readonly faPenToSquare = faPenToSquare;
 
   ngOnInit() {
@@ -76,6 +85,24 @@ export class CardComponent implements OnInit, AfterViewInit {
     this.actualDefinition = this.changingDefinition ? this.changingDefinition : "";
 
     this.isMobile = this.deviceService.isMobile();
+
+    if (this.nextDueAt) {
+      const dueDays = this.nextDueAt / 8.64e7;
+
+      if (this.nextDueAt > 0) {
+        if (dueDays < 1) {
+          this.dueToday = true;
+        } else {
+          this.dueDays = Math.floor(dueDays);
+        }
+      } else {
+        if (dueDays < 19000) {
+          this.notYetStudied = true;
+        } else {
+          this.lateDays = Math.abs(Math.floor(dueDays));
+        }
+      }
+    }
   }
 
   ngAfterViewInit() {

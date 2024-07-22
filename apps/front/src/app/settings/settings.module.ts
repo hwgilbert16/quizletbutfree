@@ -7,6 +7,7 @@ import { AvatarSettingsComponent } from "./avatar-settings/avatar-settings.compo
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ChangePasswordSettingsComponent } from "./change-password-settings/change-password-settings.component";
 import { ChangeEmailSettingsComponent } from "./change-email-settings/change-email-settings.component";
+import { TimezoneSettingsComponent } from "./timezone-settings/timezone-settings.component";
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { ChangeEmailSettingsComponent } from "./change-email-settings/change-ema
     SettingsComponent,
     AvatarSettingsComponent,
     ChangePasswordSettingsComponent,
-    ChangeEmailSettingsComponent
+    ChangeEmailSettingsComponent,
+    TimezoneSettingsComponent
   ]
 })
 export class SettingsModule {}
