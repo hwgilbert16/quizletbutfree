@@ -54,7 +54,6 @@ export class SpacedRepetitionSettingsModalComponent {
 
     const update = await this.spacedRepetitionService.updateSpacedRepetitionSet({
       id: this.setId,
-      cardsPerDay: form.value["cardsPerDay"],
       answerWith: this.answerWith
     });
 

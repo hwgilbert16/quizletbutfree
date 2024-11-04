@@ -87,7 +87,10 @@ model SpacedRepetitionSet {
   id                    String                 @id @default(uuid())
   setId                 String
   userId                String
-  cardsPerDay           Int
+  desiredRetention      Float
+  maximumInterval       Int
+  maximumNewCardsPerDay Int
+  w                     Json
   answerWith            Side                   @default(TERM)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
@@ -104,10 +107,13 @@ model SpacedRepetitionCard {
   id                          String                       @id @default(uuid())
   spacedRepetitionSetId       String
   cardId                      String
-  easeFactor                  Float                        @default(2.5)
-  repetitions                 Int                          @default(0)
+  stability                   Float                        @default(0)
+  difficulty                  Float                        @default(0)
   due                         DateTime                     @default("1970-01-01T00:00:01.000Z")
-  lastStudiedAt               DateTime                     @default("1970-01-01T00:00:01.000Z")
+  repetitions                 Int                          @default(0)
+  lapses                      Int                          @default(0)
+  state                       SpacedRepetitionCardState    @default(NEW)
+  lastReviewed                DateTime                     @default("1970-01-01T00:00:01.000Z")
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
   card                        Card                         @relation(fields: [cardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -119,13 +125,19 @@ model SpacedRepetitionCard {
 }
 
 model SpacedRepetitionCardReview {
-  id                     String               @id @default(uuid())
-  spacedRepetitionCardId String
-  recallTime             Int
-  correct                Boolean
-  quality                Int
-  time                   DateTime             @default(now())
-  spacedRepetitionCard   SpacedRepetitionCard @relation(fields: [spacedRepetitionCardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                        String                           @id @default(uuid())
+  spacedRepetitionCardId    String
+  recallTime                Int
+  rating                    SpacedRepetitionCardReviewRating
+  state                     SpacedRepetitionCardState
+  previousDue               DateTime
+  previousStability         Float
+  previousDifficulty        Float
+  daysSinceLastReview       Int
+  daysBetweenLastTwoReviews Int
+  daysUntilNextReview       Int
+  time                      DateTime                         @default(now())
+  spacedRepetitionCard      SpacedRepetitionCard             @relation(fields: [spacedRepetitionCardId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([spacedRepetitionCardId])
 }
@@ -143,4 +155,19 @@ model ApiKey {
 enum Side {
   TERM
   DEFINITION
+}
+
+enum SpacedRepetitionCardState {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
+enum SpacedRepetitionCardReviewRating {
+  MANUAL
+  AGAIN
+  HARD
+  GOOD
+  EASY
 }

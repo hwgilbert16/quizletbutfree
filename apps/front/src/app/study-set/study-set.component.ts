@@ -422,37 +422,37 @@ export class StudySetComponent implements OnInit {
         this.spacedRepetitionEnabled = true;
         this.spacedRepetitionAnswerWith = spacedRepetitionSet.answerWith;
 
-        const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
-          spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
-            ...card,
-            due: this.sharedService.convertUtcStringToTimeZone(card.due.toString(), user.timezone) ?? DateTime.now(),
-            lastStudiedAt: this.sharedService.convertUtcStringToTimeZone(card.lastStudiedAt.toString(), user.timezone) ?? DateTime.now()
-          }));
-
-        const now = DateTime.now().setZone(user.timezone);
-
-        this.cardsPerDay = spacedRepetitionSet.cardsPerDay;
-        this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length;
-
-        this.studySessionStartedToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length > 0;
-
-        this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
-        this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(now, "day")).length;
-
-        this.dueDates = spacedRepetitionCards.map((c) => {
-          return { cardId: c.cardId, dueIn: c.due.toMillis() - DateTime.now().toMillis() };
-        });
-
-        const numberOfNewCards = spacedRepetitionCards.filter((c) => c.due.toMillis() === DateTime.fromISO("1970-01-01T00:00:01.000Z").toMillis()).length;
-
-        if (
-          this.cardsDueToday !== spacedRepetitionSet.cardsPerDay &&
-          numberOfNewCards >= spacedRepetitionSet.cardsPerDay - this.cardsDueToday
-        ) {
-          this.cardsNewToday = spacedRepetitionSet.cardsPerDay - this.cardsDueToday;
-        } else if (this.cardsDueToday !== spacedRepetitionSet.cardsPerDay) {
-          this.cardsNewToday = numberOfNewCards;
-        }
+        // const spacedRepetitionCards: (Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime })[] =
+        //   spacedRepetitionSet.spacedRepetitionCards.map((card): Omit<SpacedRepetitionCard, "due" | "lastStudiedAt"> & { due: DateTime, lastStudiedAt: DateTime } => ({
+        //     ...card,
+        //     due: this.sharedService.convertUtcStringToTimeZone(card.due.toString(), user.timezone) ?? DateTime.now(),
+        //     lastStudiedAt: this.sharedService.convertUtcStringToTimeZone(card.lastStudiedAt.toString(), user.timezone) ?? DateTime.now()
+        //   }));
+        //
+        // const now = DateTime.now().setZone(user.timezone);
+        //
+        // this.cardsPerDay = spacedRepetitionSet.cardsPerDay;
+        // this.alreadyCompletedCards = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length;
+        //
+        // this.studySessionStartedToday = spacedRepetitionCards.filter((c) => c.lastStudiedAt.hasSame(now, "day")).length > 0;
+        //
+        // this.cardsNotYetStudied = spacedRepetitionCards.filter((c) => c.due.toMillis() === 1000).length;
+        // this.cardsDueToday = spacedRepetitionCards.filter((c) => c.due.hasSame(now, "day")).length;
+        //
+        // this.dueDates = spacedRepetitionCards.map((c) => {
+        //   return { cardId: c.cardId, dueIn: c.due.toMillis() - DateTime.now().toMillis() };
+        // });
+        //
+        // const numberOfNewCards = spacedRepetitionCards.filter((c) => c.due.toMillis() === DateTime.fromISO("1970-01-01T00:00:01.000Z").toMillis()).length;
+        //
+        // if (
+        //   this.cardsDueToday !== spacedRepetitionSet.cardsPerDay &&
+        //   numberOfNewCards >= spacedRepetitionSet.cardsPerDay - this.cardsDueToday
+        // ) {
+        //   this.cardsNewToday = spacedRepetitionSet.cardsPerDay - this.cardsDueToday;
+        // } else if (this.cardsDueToday !== spacedRepetitionSet.cardsPerDay) {
+        //   this.cardsNewToday = numberOfNewCards;
+        // }
       }
     }
 

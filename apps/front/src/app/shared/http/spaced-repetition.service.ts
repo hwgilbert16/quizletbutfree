@@ -36,16 +36,15 @@ export class SpacedRepetitionService {
    * Creates a spaced repetition set
    *
    * @param setId The ID of the set corresponding to the spaced repetition set
-   * @param cardsPerDay The number of cards that will be studied each day
    * @param answerWith The side of the flashcard that the user answers with
    *
    * @returns Created `SpacedRepetitionSet` object
    */
-  async createSpacedRepetitionSet(setId: string, cardsPerDay: number, answerWith?: "TERM" | "DEFINITION"): Promise<SpacedRepetitionSet | null> {
+  async createSpacedRepetitionSet(setId: string, answerWith?: "TERM" | "DEFINITION"): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
 
     try {
-      spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + setId, { cardsPerDay, answerWith }));
+      spacedRepetitionSet = await lastValueFrom(this.http.post<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + setId, { answerWith }));
     } catch (e) {
       return null;
     }
@@ -66,14 +65,12 @@ export class SpacedRepetitionService {
    */
   async updateSpacedRepetitionSet(body: {
     id: string;
-    cardsPerDay?: number;
     answerWith?: "TERM" | "DEFINITION"
   }): Promise<SpacedRepetitionSet | null> {
     let spacedRepetitionSet: ApiResponse<SpacedRepetitionSet> | undefined;
 
     try {
       spacedRepetitionSet = await lastValueFrom(this.http.patch<ApiResponse<SpacedRepetitionSet>>("/api/spaced-repetition/sets/" + body.id, {
-        cardsPerDay: body.cardsPerDay,
         answerWith: body.answerWith
       }));
     } catch (e) {

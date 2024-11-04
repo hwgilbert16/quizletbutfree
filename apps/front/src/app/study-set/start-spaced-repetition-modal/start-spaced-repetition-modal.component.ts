@@ -53,7 +53,7 @@ export class StartSpacedRepetitionModalComponent {
   public async submit(form: NgForm) {
     this.clicked = true;
 
-    const spacedRepetitionSet = await this.spacedRepetitionService.createSpacedRepetitionSet(this.set.id, Number(form.controls["cardsPerDay"].value), this.answerWith);
+    const spacedRepetitionSet = await this.spacedRepetitionService.createSpacedRepetitionSet(this.set.id, this.answerWith);
 
     if (spacedRepetitionSet) {
       this.router.navigateByUrl("/", { skipLocationChange: true }).then(() => {

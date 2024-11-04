@@ -23,6 +23,8 @@ import { SetsService } from "../sets/sets.service";
 import { UpdateSpacedRepetitionSetDto } from "./dto/updateSpacedRepetitionSet.dto";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CreateSpacedRepetitionSetDto } from "./dto/createSpacedRepetitionSet.dto";
+// eslint-disable-next-line camelcase
+import { default_w } from "ts-fsrs";
 
 @ApiTags("Spaced Repetition")
 @UseGuards(AuthenticatedGuard)
@@ -94,12 +96,11 @@ export class SpacedRepetitionSetsController {
     });
     if (existingSpacedRepetitionSet) throw new ConflictException({ status: "fail", message: "Spaced repetition set already exists" });
 
-    if (body.cardsPerDay > set.cards.length) {
-      throw new BadRequestException({ status: "fail", message: "The cards per day cannot exceed the number of cards in a set." });
-    }
-
     const spacedRepetitionSet = await this.spacedRepetitionSetsService.createSpacedRepetitionSet({
-      cardsPerDay: body.cardsPerDay,
+      desiredRetention: 0.9,
+      // eslint-disable-next-line camelcase
+      w: default_w,
+      maximumInterval: 36500,
       answerWith: body.answerWith,
       set: {
         connect: {
@@ -165,7 +166,6 @@ export class SpacedRepetitionSetsController {
           }
         },
         data: {
-          cardsPerDay: body.cardsPerDay,
           answerWith: body.answerWith
         }
       })
